@@ -112,6 +112,6 @@ public class TestBase extends AbstractTestNGSpringContextTests {
 
 	public boolean isHaveRecord(String key) {
 		Object resp = getRedisOperator().getByKey(key, Object.class);
-		return resp == null || !resp.equals(Serializer.NULL_OBJECT);
+		return resp == null || !resp.equals(Serializer.NO_DATA);
 	}
 }

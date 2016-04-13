@@ -37,7 +37,7 @@ public class JdkSerializer implements Serializer {
 	@Override
 	public Object deserialize(byte[] source, Class type) {
 		if (source == null) {
-			return NULL_OBJECT;
+			return NO_DATA;
 		}
 		if (source.length == 0) {
 			return null;

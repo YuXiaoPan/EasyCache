@@ -74,7 +74,7 @@ public class EasyCacheAspect extends MethodCache {
 		try {
 			log.debug("try to read data from cache");
 			Object resp = getCacheOperator().getByKey(cacheKeyName, returnType);
-			if (!(resp instanceof Serializer.NullObject)) {
+			if (!(resp instanceof Serializer.NoData)) {
 				return resp;
 			}
 		} catch (SerializationException e) {
