@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~  Copyright  2015-2016. the original author or authors.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<xsd:schema xmlns="http://allan.li/easycache"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:beans="http://www.springframework.org/schema/beans"
+            targetNamespace="http://allan.li/easycache"
+            elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+    <xsd:element name="annotation_cache"></xsd:element>
+
+    <xsd:element name="config">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:sequence>
+                        <!-- main cache -->
+                        <xsd:choice>
+                            <xsd:element ref="redis"/>
+                        </xsd:choice>
+                        <!-- backup cache -->
+                        <xsd:element name="backup" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                                <xsd:attribute name="size" type="xsd:positiveInteger" use="required"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <!-- other -->
+                        <xsd:element name="defaultCacheExpire" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                                <xsd:attribute name="seconds" type="xsd:positiveInteger" use="required"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <!-- serializer -->
+                        <xsd:element name="keySerializer" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                                <xsd:attribute name="class" type="xsd:string" use="required"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element name="valueSerializer" minOccurs="0" maxOccurs="1">
+                            <xsd:complexType>
+                                <xsd:attribute name="class" type="xsd:string" use="required"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="redis">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="connections">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="connection" maxOccurs="unbounded">
+                                <xsd:complexType>
+                                    <xsd:attribute name="host" type="xsd:normalizedString" use="required"/>
+                                    <xsd:attribute name="port" type="xsd:positiveInteger" use="required"/>
+                                    <xsd:attribute name="timeout" type="xsd:positiveInteger"/>
+                                    <xsd:attribute name="database" type="xsd:nonNegativeInteger"/>
+                                    <xsd:attribute name="password" type="xsd:normalizedString"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="pool">
+                    <xsd:complexType>
+                        <xsd:attribute name="ref" type="xsd:string"/>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~  Copyright  2015-2016. the original author or authors.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:easycache="http://allan.li/easycache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://allan.li/easycache
+       http://allan.li/easycache/easycache.xsd">
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <context:component-scan base-package="li.allan.annotation"/>
+
+    <easycache:annotation_cache></easycache:annotation_cache>
+
+    <easycache:config>
+        <easycache:redis>
+            <easycache:connections>
+                <easycache:connection host="localhost" port="16389"/>
+                <easycache:connection host="localhost" port="16389"/>
+            </easycache:connections>
+            <easycache:pool ref="jedisPoolConfig"/>
+        </easycache:redis>
+        <easycache:backup size="2000"/>
+        <easycache:defaultCacheExpire seconds="15"/>
+        <easycache:keySerializer class="li.allan.serializer.StringSerializer"/>
+        <easycache:valueSerializer class="li.allan.serializer.ThriftWithJackson2Serializer"/>
+    </easycache:config>
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="blockWhenExhausted" value="true"/>
+        <property name="jmxEnabled" value="true"/>
+        <property name="jmxNamePrefix" value="pool"/>
+        <property name="lifo" value="true"/>
+        <property name="maxTotal" value="50"/>
+        <property name="maxIdle" value="30"/>
+        <property name="minIdle" value="2"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="maxWaitMillis" value="5000"/>
+        <property name="testOnBorrow" value="true"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="evictionPolicyClassName" value="org.apache.commons.pool2.impl.DefaultEvictionPolicy"/>
+    </bean>
+</beans>

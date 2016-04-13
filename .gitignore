@@ -1,0 +1,18 @@
+*.class
+
+.project
+.classpath
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+*/target/*
+/.settings
+
+*.iml
+.idea
+/target/
+
+hs_err_pid*
