@@ -31,4 +31,11 @@ public class ExpireMapConfig implements CacheConfig {
 	public void setMaxSize(int maxSize) {
 		this.maxSize = maxSize;
 	}
+
+	@Override
+	public String toString() {
+		return "ExpireMapConfig{" +
+				"maxSize=" + maxSize +
+				'}';
+	}
 }

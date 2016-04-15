@@ -21,17 +21,14 @@ import li.allan.config.base.CacheConfig;
 import li.allan.config.base.ConfigBase;
 import li.allan.config.base.ConfigProperties;
 
-;
-
 /**
  * @author LiALuN
  */
-public class EasyCacheConfig extends ConfigBase {
+public class SpringConfig extends ConfigBase {
 	private ConfigProperties tmp = new ConfigProperties();
 
 	@Override
 	public ConfigProperties initConfigProperties() {
-		//TODO 判断数据来源
 		return tmp;
 	}
 

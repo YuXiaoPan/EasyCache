@@ -16,9 +16,11 @@
 
 package li.allan.monitor;
 
+import com.google.common.base.Splitter;
 import li.allan.config.base.RedisConnectionConfig;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author LiALuN
@@ -34,66 +36,105 @@ public class RedisStatus {
 	private long uptimeInSeconds;
 	private int connectedClients;
 	private long usedMemory;
-	private Date statusLastUpdate;
+	private long keys;
+	private long expires;
+	private long avgTTL;
 	/**
 	 * 可用性信息
 	 */
-	private boolean isAvaliable;//是否可用
-	private boolean avaliableLastUpdate;//上次状态更新时间
+	private Date statusLastUpdate;
+	private boolean isAvailable;//是否可用
+
+	private RedisStatus() {
+	}
+
+	public static RedisStatus fromRedisInfo(RedisConnectionConfig connConfig, int database, Map<String, String> redisInfo) {
+		RedisStatus redisStatus = new RedisStatus();
+		redisStatus.redisConnectionConfig = connConfig;
+		redisStatus.uptimeInSeconds = redisInfo.containsKey("uptime_in_seconds") ?
+				Long.valueOf(redisInfo.get("uptime_in_seconds")) : -1;
+		redisStatus.connectedClients = redisInfo.containsKey("connected_clients") ?
+				Integer.valueOf(redisInfo.get("uptime_in_seconds")) : -1;
+		redisStatus.usedMemory = redisInfo.containsKey("used_memory") ?
+				Long.valueOf(redisInfo.get("used_memory")) : -1;
+		if (redisInfo.containsKey("db" + database)) {
+			Map<String, String> dbInfo = Splitter.on(",").trimResults()
+					.withKeyValueSeparator("=").split(redisInfo.get("db" + database));
+			redisStatus.keys = dbInfo.containsKey("keys") ? Long.valueOf(dbInfo.get("keys")) : -1;
+			redisStatus.expires = dbInfo.containsKey("expires") ? Long.valueOf(dbInfo.get("expires")) : -1;
+			redisStatus.avgTTL = dbInfo.containsKey("avg_ttl") ? Long.valueOf(dbInfo.get("avg_ttl")) : -1;
+		} else {
+			redisStatus.keys = 0;
+			redisStatus.expires = 0;
+			redisStatus.avgTTL = -1;
+		}
+		redisStatus.statusLastUpdate = new Date();
+		redisStatus.isAvailable = true;
+		return redisStatus;
+	}
+
+	public static RedisStatus unAvailable(RedisConnectionConfig connConfig) {
+		RedisStatus redisStatus = new RedisStatus();
+		redisStatus.uptimeInSeconds = -1;
+		redisStatus.connectedClients = -1;
+		redisStatus.usedMemory = -1;
+		redisStatus.keys = -1;
+		redisStatus.expires = -1;
+		redisStatus.avgTTL = -1;
+		redisStatus.redisConnectionConfig = connConfig;
+		redisStatus.statusLastUpdate = new Date();
+		redisStatus.isAvailable = false;
+		return redisStatus;
+	}
+
+	@Override
+	public String toString() {
+		return "RedisStatus{" +
+				"redisConnectionConfig=" + redisConnectionConfig +
+				", uptimeInSeconds=" + uptimeInSeconds +
+				", connectedClients=" + connectedClients +
+				", usedMemory=" + usedMemory +
+				", keys=" + keys +
+				", expires=" + expires +
+				", avgTTL=" + avgTTL +
+				", statusLastUpdate=" + statusLastUpdate +
+				", isAvailable=" + isAvailable +
+				'}';
+	}
 
 	public RedisConnectionConfig getRedisConnectionConfig() {
 		return redisConnectionConfig;
-	}
-
-	public void setRedisConnectionConfig(RedisConnectionConfig redisConnectionConfig) {
-		this.redisConnectionConfig = redisConnectionConfig;
 	}
 
 	public long getUptimeInSeconds() {
 		return uptimeInSeconds;
 	}
 
-	public void setUptimeInSeconds(long uptimeInSeconds) {
-		this.uptimeInSeconds = uptimeInSeconds;
-	}
-
 	public int getConnectedClients() {
 		return connectedClients;
-	}
-
-	public void setConnectedClients(int connectedClients) {
-		this.connectedClients = connectedClients;
 	}
 
 	public long getUsedMemory() {
 		return usedMemory;
 	}
 
-	public void setUsedMemory(long usedMemory) {
-		this.usedMemory = usedMemory;
+	public long getKeys() {
+		return keys;
+	}
+
+	public long getExpires() {
+		return expires;
+	}
+
+	public long getAvgTTL() {
+		return avgTTL;
 	}
 
 	public Date getStatusLastUpdate() {
 		return statusLastUpdate;
 	}
 
-	public void setStatusLastUpdate(Date statusLastUpdate) {
-		this.statusLastUpdate = statusLastUpdate;
-	}
-
-	public boolean isAvaliable() {
-		return isAvaliable;
-	}
-
-	public void setAvaliable(boolean avaliable) {
-		isAvaliable = avaliable;
-	}
-
-	public boolean isAvaliableLastUpdate() {
-		return avaliableLastUpdate;
-	}
-
-	public void setAvaliableLastUpdate(boolean avaliableLastUpdate) {
-		this.avaliableLastUpdate = avaliableLastUpdate;
+	public boolean isAvailable() {
+		return isAvailable;
 	}
 }

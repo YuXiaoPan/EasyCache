@@ -18,7 +18,7 @@ package li.allan.cache.operator;
 
 import li.allan.cache.operator.impl.map.ExpiringMapOperator;
 import li.allan.cache.operator.impl.redis.RedisOperator;
-import li.allan.config.EasyCacheConfig;
+import li.allan.config.base.ConfigBase;
 import li.allan.exception.CacheOperationException;
 import li.allan.exception.NoAvailableCacheException;
 import li.allan.monitor.RedisStatus;
@@ -79,10 +79,10 @@ public class CacheOperator implements EasyCacheObserver<ObserverEvent>, CacheInt
 	public void eventUpdate(ObserverEvent event) {
 		if (event instanceof ConfigUpdateEvent) {
 			if (mainCacheOperator != null) {
-				mainCacheOperator.onConfigUpdate(EasyCacheConfig.getConfigProperties().getMainCacheConfig());
+				mainCacheOperator.onConfigUpdate(ConfigBase.getConfigProperties().getMainCacheConfig());
 			}
 			if (backupCacheOperator != null) {
-				backupCacheOperator.onConfigUpdate(EasyCacheConfig.getConfigProperties().getBackupCacheConfig());
+				backupCacheOperator.onConfigUpdate(ConfigBase.getConfigProperties().getBackupCacheConfig());
 			}
 		}
 		if (event instanceof RedisStatusUpdateEvent) {

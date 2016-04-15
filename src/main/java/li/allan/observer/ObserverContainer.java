@@ -21,6 +21,8 @@ import li.allan.observer.event.base.ObserverEvent;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author LiALuN
@@ -28,42 +30,57 @@ import java.util.*;
 public class ObserverContainer {
 
 	private static Map<Class, Set<EasyCacheObserver>> obContainer = new HashMap<Class, Set<EasyCacheObserver>>();
+	private static ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
+	private ObserverContainer() {
+	}
 
 	public static synchronized void addObserver(EasyCacheObserver observer) {
-		Class eventClass = getObserverEventClass(observer);
-		if (!obContainer.containsKey(eventClass)) {
-			obContainer.put(eventClass, new HashSet<EasyCacheObserver>());
+		readWriteLock.writeLock().lock();
+		try {
+			Class eventClass = getObserverEventClass(observer);
+			if (!obContainer.containsKey(eventClass)) {
+				obContainer.put(eventClass, new HashSet<EasyCacheObserver>());
+			}
+			obContainer.get(eventClass).add(observer);
+		} finally {
+			readWriteLock.writeLock().unlock();
 		}
-		obContainer.get(eventClass).add(observer);
 	}
 
 	public static synchronized void removeObserver(EasyCacheObserver observer) {
-		Class eventClass = getObserverEventClass(observer);
-		if (obContainer.containsKey(eventClass)) {
-			obContainer.get(eventClass).remove(observer);
+		readWriteLock.writeLock().lock();
+		try {
+			Class eventClass = getObserverEventClass(observer);
+			if (obContainer.containsKey(eventClass)) {
+				obContainer.get(eventClass).remove(observer);
+			}
+		} finally {
+			readWriteLock.writeLock().unlock();
 		}
 	}
 
 	public static void sendEvent(ObserverEvent event) {
-		for (EasyCacheObserver observer : getRelatedObserver(event.getClass())) {
+		for (EasyCacheObserver observer : getRelatedObserver(event)) {
 			observer.eventUpdate(event);
 		}
 	}
 
-	public static Collection<EasyCacheObserver> getRelatedObserver(Class eventClass) {
-		Set<EasyCacheObserver> collection = new HashSet<EasyCacheObserver>();
-		for (Class clazz : obContainer.keySet()) {
-			if (clazz.isAssignableFrom(eventClass)) {
-				collection.addAll(obContainer.get(clazz));
+	public static Collection<EasyCacheObserver> getRelatedObserver(ObserverEvent event) {
+		readWriteLock.readLock().lock();
+		try {
+			Set<EasyCacheObserver> collection = new HashSet<EasyCacheObserver>();
+			for (Class clazz : obContainer.keySet()) {
+				if (clazz.isAssignableFrom(event.getClass())) {
+					collection.addAll(obContainer.get(clazz));
+				}
 			}
+			return collection;
+		} finally {
+			readWriteLock.readLock().unlock();
 		}
-		return collection;
 	}
 
-	private ObserverContainer() {
-
-	}
 
 	private static Class getObserverEventClass(EasyCacheObserver observer) {
 		return getObserverEventClass(observer.getClass());
@@ -79,7 +96,7 @@ public class ObserverContainer {
 				return ObserverEvent.class;
 			} else if (type instanceof ParameterizedType) {//使用泛型
 				if (type.toString().matches(EasyCacheObserver.class.getName() + "<.*>")) {
-					return (Class)((ParameterizedType)type).getActualTypeArguments()[0];
+					return (Class) ((ParameterizedType) type).getActualTypeArguments()[0];
 				}
 			}
 		}

@@ -17,16 +17,30 @@
 package li.allan.config;
 
 import li.allan.TestBase;
-import org.testng.annotations.Test;
 
 /**
  * @author LiALuN
  */
-public class EasyCacheConfigTest extends TestBase {
+public class SpringConfigTest extends TestBase {
 
-	@Test
-	public void testName() throws Exception {
-		EasyCacheConfig config = (EasyCacheConfig) applicationContext.getBean("easyCacheConfig");
-		System.out.println(config);
-	}
+//	@Test
+//	public void testName() throws Exception {
+//		SpringConfig config = (SpringConfig) applicationContext.getBean("easyCacheConfig");
+//		System.out.println(config.getConfigProperties());
+//		new AllUpdate();
+//		MonitorDaemon.start();
+//		Thread.sleep(1000000000);
+//
+//	}
+//
+//	class AllUpdate implements EasyCacheObserver<ObserverEvent> {
+//		public AllUpdate() {
+//			ObserverContainer.addObserver(this);
+//		}
+//
+//		@Override
+//		public void eventUpdate(ObserverEvent event) {
+//			System.out.println(event.toString());
+//		}
+//	}
 }

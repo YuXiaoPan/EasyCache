@@ -14,17 +14,17 @@
  *  limitations under the License.
  */
 
-package li.allan.utils;
+package li.allan.observer.event;
+
+import li.allan.monitor.RedisStatus;
+import li.allan.observer.event.base.ObserverEvent;
 
 /**
  * @author LiALuN
  */
-public class Constants {
-	public static final String KEY_SEPARATOR = "_";
-	public static final int MIN_ORDER = 0;
-	public static final int DEFAULT_CACHE_EXPIRE = -1;
-	public static final int DEFAULT_MAP_CACHE_SIZE = 20000;
-	public static final String RESULT = "result";
-	public static final int DEFAULT_MONITOR_INTERVAL = 1000;
-	public static final int DEFAULT_MONITOR_EXPIRE = 1000;
+public class RedisInfoEvent extends ObserverEvent {
+
+	public RedisInfoEvent(RedisStatus redisStatus) {
+		super(redisStatus);
+	}
 }

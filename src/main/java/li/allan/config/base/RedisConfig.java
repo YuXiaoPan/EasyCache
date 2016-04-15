@@ -19,20 +19,20 @@ package li.allan.config.base;
 import com.google.common.base.Objects;
 import redis.clients.jedis.JedisPoolConfig;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author LiALuN
  */
 public class RedisConfig implements CacheConfig {
-	private List<RedisConnectionConfig> redisConnectionConfigs;
+	private Set<RedisConnectionConfig> redisConnectionConfigs;
 	private JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
 
-	public List<RedisConnectionConfig> getRedisConnectionConfigs() {
+	public Set<RedisConnectionConfig> getRedisConnectionConfigs() {
 		return redisConnectionConfigs;
 	}
 
-	public void setRedisConnectionConfigs(List<RedisConnectionConfig> redisConnectionConfigs) {
+	public void setRedisConnectionConfigs(Set<RedisConnectionConfig> redisConnectionConfigs) {
 		this.redisConnectionConfigs = redisConnectionConfigs;
 	}
 
@@ -56,5 +56,13 @@ public class RedisConfig implements CacheConfig {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(redisConnectionConfigs, jedisPoolConfig);
+	}
+
+	@Override
+	public String toString() {
+		return "RedisConfig{" +
+				"redisConnectionConfigs=" + redisConnectionConfigs +
+				", jedisPoolConfig=" + jedisPoolConfig +
+				'}';
 	}
 }

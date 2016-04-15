@@ -18,13 +18,13 @@ package li.allan.config.xml;
 
 import com.google.common.base.Strings;
 import li.allan.aspect.EasyCacheAspect;
-import li.allan.serializer.Serializer;
-import li.allan.config.EasyCacheConfig;
+import li.allan.config.SpringConfig;
 import li.allan.config.base.ExpireMapConfig;
 import li.allan.config.base.RedisConfig;
 import li.allan.config.base.RedisConnectionConfig;
 import li.allan.logging.Log;
 import li.allan.logging.LogFactory;
+import li.allan.serializer.Serializer;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -34,8 +34,9 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author LiALuN
@@ -77,7 +78,7 @@ public class EasyCacheNamespaceHandler extends NamespaceHandlerSupport {
 
 		private static AbstractBeanDefinition parseParentElement(Element element) {
 			loadClass();
-			BeanDefinitionBuilder factory = BeanDefinitionBuilder.rootBeanDefinition(EasyCacheConfig.class);
+			BeanDefinitionBuilder factory = BeanDefinitionBuilder.rootBeanDefinition(SpringConfig.class);
 			//redis
 			parseRedis(element, factory);
 			//backup
@@ -105,7 +106,7 @@ public class EasyCacheNamespaceHandler extends NamespaceHandlerSupport {
 			Element redisConfig = redisConfigElements.get(0);
 			BeanDefinitionBuilder component = BeanDefinitionBuilder.rootBeanDefinition(RedisConfig.class);
 			//connections
-			List<RedisConnectionConfig> connectionConfigs = new ArrayList<RedisConnectionConfig>();
+			Set<RedisConnectionConfig> connectionConfigs = new HashSet<RedisConnectionConfig>();
 			Element connections = DomUtils.getChildElementsByTagName(redisConfig, "connections").get(0);
 			for (Element connection : DomUtils.getChildElementsByTagName(connections, "connection")) {
 				RedisConnectionConfig connectionConfig = new RedisConnectionConfig();
@@ -120,7 +121,13 @@ public class EasyCacheNamespaceHandler extends NamespaceHandlerSupport {
 				if (connection.hasAttribute("password")) {
 					connectionConfig.setPassword(connection.getAttribute("password"));
 				}
-				connectionConfigs.add(connectionConfig);
+				if (!connectionConfigs.contains(connectionConfig)) {
+					connectionConfigs.add(connectionConfig);
+				} else {
+					LogFactory.getLog(EasyCacheNamespaceHandler.class)
+							.error("same redis connection found: host:" + connectionConfig.getHost() + ", port:" + connectionConfig.getPort() + ", " +
+									"two connection can't have same host and port. last one will discard");
+				}
 			}
 			component.addPropertyValue("RedisConnectionConfigs", connectionConfigs);
 			//pool

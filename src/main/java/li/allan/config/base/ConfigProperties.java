@@ -87,4 +87,15 @@ public class ConfigProperties {
 	public int hashCode() {
 		return Objects.hashCode(mainCacheConfig, backupCacheConfig, keySerializer, valueSerializer, defaultCacheExpire);
 	}
+
+	@Override
+	public String toString() {
+		return "ConfigProperties{" +
+				"mainCacheConfig=" + mainCacheConfig +
+				", backupCacheConfig=" + backupCacheConfig +
+				", keySerializer=" + keySerializer +
+				", valueSerializer=" + valueSerializer +
+				", defaultCacheExpire=" + defaultCacheExpire +
+				'}';
+	}
 }

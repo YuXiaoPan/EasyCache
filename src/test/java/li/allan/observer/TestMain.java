@@ -35,7 +35,7 @@ public class TestMain {
 		EasyCacheObservable observable = new EasyCacheObservable();
 		observable.sendEvent(new ConfigUpdateEvent());
 		System.out.println();
-		observable.sendEvent(new RedisStatusUpdateEvent(new RedisStatus()));
+		observable.sendEvent(new RedisStatusUpdateEvent(RedisStatus.unAvailable(null)));
 	}
 
 	class GetConfigUpdate implements EasyCacheObserver<ConfigUpdateEvent> {

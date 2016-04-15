@@ -32,8 +32,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -43,7 +43,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RedisPoolContainer implements ConfigUpdateListener, RedisStatusUpdateListener {
 	private Log log = LogFactory.getLog(RedisPoolContainer.class);
 	private Map<RedisConnectionConfig, JedisPool> availableRedisPoolMap = new HashMap<RedisConnectionConfig, JedisPool>();
-	private Map<RedisConnectionConfig, JedisPool> unavaliableRedisPoolMap = new HashMap<RedisConnectionConfig, JedisPool>();
 	private ShardMethod<JedisPool> shardMethod;
 	private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
@@ -71,17 +70,12 @@ public class RedisPoolContainer implements ConfigUpdateListener, RedisStatusUpda
 	 * @param redisConnectionConfigs
 	 * @param jedisPoolConfig
 	 */
-	private Map<RedisConnectionConfig, JedisPool> initRedisPoolMap(List<RedisConnectionConfig> redisConnectionConfigs, JedisPoolConfig jedisPoolConfig) {
+	private Map<RedisConnectionConfig, JedisPool> initRedisPoolMap(Set<RedisConnectionConfig> redisConnectionConfigs, JedisPoolConfig jedisPoolConfig) {
 		if (redisConnectionConfigs == null || redisConnectionConfigs.size() == 0) {
 			throw new ConfigException("Redis Connection can't be empty");
 		}
 		Map<RedisConnectionConfig, JedisPool> redisPoolMap = new HashMap<RedisConnectionConfig, JedisPool>();
 		for (RedisConnectionConfig rcc : redisConnectionConfigs) {
-			if (redisPoolMap.containsKey(rcc)) {
-				log.error("same redis connection found: " + rcc + " has conflict, " +
-						"two connection can't have same host and port. last one will discard");
-				continue;
-			}
 			JedisPool jedisPool = new JedisPool(jedisPoolConfig, rcc.getHost(), rcc.getPort(),
 					rcc.getTimeout(), rcc.getPassword(), rcc.getDatabase());
 			redisPoolMap.put(rcc, jedisPool);
@@ -99,7 +93,6 @@ public class RedisPoolContainer implements ConfigUpdateListener, RedisStatusUpda
 		try {
 			availableRedisPoolMap = initRedisPoolMap(((RedisConfig) cacheConfig).getRedisConnectionConfigs(),
 					((RedisConfig) cacheConfig).getJedisPoolConfig());
-			unavaliableRedisPoolMap = new HashMap<RedisConnectionConfig, JedisPool>();
 			shardMethod = new ConsistentHashShard<JedisPool>(availableRedisPoolMap.values());
 		} finally {
 			readWriteLock.writeLock().unlock();

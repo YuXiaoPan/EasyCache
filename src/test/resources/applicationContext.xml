@@ -36,7 +36,7 @@
     <easycache:config>
         <easycache:redis>
             <easycache:connections>
-                <easycache:connection host="localhost" port="16389"/>
+                <!--<easycache:connection host="192.168.196.128" port="7000"/>-->
                 <easycache:connection host="localhost" port="16389"/>
             </easycache:connections>
             <easycache:pool ref="jedisPoolConfig"/>
