@@ -24,6 +24,8 @@ import org.apache.thrift.TSerializer;
 import org.apache.thrift.protocol.TJSONProtocol;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static li.allan.utils.Constants.EMPTY_ARRAY;
+import static li.allan.utils.Constants.NO_DATA;
 
 public class ThriftWithJackson2Serializer implements Serializer {
 

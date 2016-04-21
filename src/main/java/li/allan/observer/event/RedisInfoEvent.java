@@ -16,15 +16,15 @@
 
 package li.allan.observer.event;
 
-import li.allan.monitor.RedisStatus;
-import li.allan.observer.event.base.ObserverEvent;
+import li.allan.monitor.RedisInfo;
+import li.allan.observer.event.base.CacheInfoEvent;
 
 /**
  * @author LiALuN
  */
-public class RedisInfoEvent extends ObserverEvent {
+public class RedisInfoEvent extends CacheInfoEvent {
 
-	public RedisInfoEvent(RedisStatus redisStatus) {
-		super(redisStatus);
+	public RedisInfoEvent(RedisInfo redisInfo) {
+		super(redisInfo);
 	}
 }

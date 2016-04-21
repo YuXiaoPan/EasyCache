@@ -51,7 +51,7 @@ public class MonitorDaemon extends EasyCacheObservable {
 					log.error("EasyCache Monitor Daemon ERROR", e);
 				}
 			}
-		}, Constants.DEFAULT_MONITOR_INTERVAL, Constants.DEFAULT_MONITOR_INTERVAL);
+		}, 0, Constants.DEFAULT_MONITOR_INTERVAL);
 	}
 
 	public static void monitor() throws InterruptedException {
@@ -68,11 +68,11 @@ public class MonitorDaemon extends EasyCacheObservable {
 				@Override
 				public Void call() throws Exception {
 					try {
-						Map<String, String> redisInfo = getRedisInfo(connConfig);
-						RedisStatus redisStatus = RedisStatus.fromRedisInfo(connConfig, connConfig.getDatabase(), redisInfo);
-						ObserverContainer.sendEvent(new RedisInfoEvent(redisStatus));
+						Map<String, String> redisInfoMap = getRedisInfo(connConfig);
+						RedisInfo redisInfo = RedisInfo.fromRedisInfo(connConfig, connConfig.getDatabase(), redisInfoMap);
+						ObserverContainer.sendEvent(new RedisInfoEvent(redisInfo));
 					} catch (JedisException e) {
-						ObserverContainer.sendEvent(new RedisInfoEvent(RedisStatus.unAvailable(connConfig)));
+						ObserverContainer.sendEvent(new RedisInfoEvent(RedisInfo.unAvailable(connConfig)));
 						log.info("Get redis info From Jedis FAIL,conn:" + connConfig, e);
 					}
 					return null;
@@ -92,7 +92,7 @@ public class MonitorDaemon extends EasyCacheObservable {
 	private static Map<String, String> getRedisInfo(RedisConnectionConfig connConfig) {
 		Jedis jedis = null;
 		try {
-			jedis = new Jedis(connConfig.getHost(), connConfig.getPort(), Constants.DEFAULT_MONITOR_EXPIRE);
+			jedis = new Jedis(connConfig.getHost(), connConfig.getPort(), Constants.DEFAULT_MONITOR_CONNECTION_TIMEOUT);
 			if (!Strings.isNullOrEmpty(connConfig.getPassword())) {
 				jedis.auth(connConfig.getPassword());
 			}

@@ -21,6 +21,9 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 
+import static li.allan.utils.Constants.EMPTY_ARRAY;
+import static li.allan.utils.Constants.NO_DATA;
+
 public class JdkSerializer implements Serializer {
 
 	private Converter<Object, byte[]> serializer = new SerializingConverter();

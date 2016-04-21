@@ -19,7 +19,6 @@ package li.allan.cache.operator.impl.map;
 import li.allan.cache.operator.BaseOperator;
 import li.allan.config.base.CacheConfig;
 import li.allan.exception.CacheOperationException;
-import li.allan.monitor.RedisStatus;
 
 import java.util.concurrent.TimeUnit;
 
@@ -46,8 +45,8 @@ public class ExpiringMapOperator implements BaseOperator {
 	}
 
 	@Override
-	public <T> T getByKey(String key, Class<T> type) throws CacheOperationException {
-		return (T) expiringMapContainer.getMap().get(key);
+	public <T> Object getByKey(String key, Class<T> type) throws CacheOperationException {
+		return expiringMapContainer.getMap().get(key);
 	}
 
 	@Override
@@ -58,12 +57,6 @@ public class ExpiringMapOperator implements BaseOperator {
 	@Override
 	public void onConfigUpdate(CacheConfig cacheConfig) {
 		expiringMapContainer.onConfigUpdate(cacheConfig);
-	}
-
-
-	@Override
-	public void onRedisStatusUpdate(RedisStatus redisStatus) {
-		//do nothing
 	}
 
 	@Override

@@ -14,19 +14,18 @@
  *  limitations under the License.
  */
 
-package li.allan.cache.operator;
+package li.allan.observer.event;
 
-import li.allan.exception.CacheOperationException;
+import li.allan.monitor.RedisStatus;
+import li.allan.observer.event.base.CacheStatusChangeEvent;
 
 /**
  * @author LiALuN
  */
-public interface CacheInterface {
-	void set(String key, Object value) throws CacheOperationException;
+public class RedisStatusChangeEvent extends CacheStatusChangeEvent {
 
-	void setWithExpire(String key, Object value, int expire) throws CacheOperationException;
+	public RedisStatusChangeEvent(RedisStatus redisStatus) {
+		super(redisStatus);
+	}
 
-	<T> Object getByKey(String key, Class<T> type) throws CacheOperationException;
-
-	void removeByKey(String key) throws CacheOperationException;
 }

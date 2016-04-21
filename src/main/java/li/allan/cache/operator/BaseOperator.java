@@ -16,14 +16,14 @@
 
 package li.allan.cache.operator;
 
-import li.allan.cache.operator.listener.ConfigUpdateListener;
-import li.allan.cache.operator.listener.RedisStatusUpdateListener;
+import li.allan.cache.operator.listener.ConfigUpdateEventListener;
+import li.allan.config.base.CacheConfig;
 
 /**
  * 缓存基本类
  *
  * @author LiALuN
  */
-public interface BaseOperator extends CacheInterface, ConfigUpdateListener, RedisStatusUpdateListener {
+public interface BaseOperator extends CacheInterface, ConfigUpdateEventListener<CacheConfig> {
 	boolean isAvailable();
 }

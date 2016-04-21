@@ -21,20 +21,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author LiALuN
  */
-public interface ExpiringMap<K, V> {
+public abstract class ExpiringMap {
 
-	int size();
+	abstract int size();
 
-	boolean isEmpty();
+	abstract boolean isEmpty();
 
-	boolean containsKey(K key);
+	abstract boolean containsKey(String key);
 
-	V get(K key);
+	abstract Object get(String key);
 
-	void put(K key, V value, long expire, TimeUnit timeUnit);
+	abstract void put(String key, Object value, long expire, TimeUnit timeUnit);
 
-	void remove(K key);
+	abstract void remove(String key);
 
-	void clear();
+	abstract void clear();
 
 }

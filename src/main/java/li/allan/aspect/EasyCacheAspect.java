@@ -24,7 +24,6 @@ import li.allan.cache.impl.MethodCache;
 import li.allan.exception.SerializationException;
 import li.allan.logging.Log;
 import li.allan.logging.LogFactory;
-import li.allan.serializer.Serializer;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -38,6 +37,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import static li.allan.utils.Constants.NoData;
 
 /**
  * @author LiALuN
@@ -74,7 +75,7 @@ public class EasyCacheAspect extends MethodCache {
 		try {
 			log.debug("try to read data from cache");
 			Object resp = getCacheOperator().getByKey(cacheKeyName, returnType);
-			if (!(resp instanceof Serializer.NoData)) {
+			if (!(resp instanceof NoData)) {
 				return resp;
 			}
 		} catch (SerializationException e) {

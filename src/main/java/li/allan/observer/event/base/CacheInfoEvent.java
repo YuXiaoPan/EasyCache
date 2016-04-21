@@ -14,19 +14,14 @@
  *  limitations under the License.
  */
 
-package li.allan.cache.operator;
-
-import li.allan.exception.CacheOperationException;
+package li.allan.observer.event.base;
 
 /**
+ * 缓存监控所发出的缓存状态信息事件。
  * @author LiALuN
  */
-public interface CacheInterface {
-	void set(String key, Object value) throws CacheOperationException;
-
-	void setWithExpire(String key, Object value, int expire) throws CacheOperationException;
-
-	<T> Object getByKey(String key, Class<T> type) throws CacheOperationException;
-
-	void removeByKey(String key) throws CacheOperationException;
+public abstract class CacheInfoEvent extends ObserverEvent {
+	public CacheInfoEvent(Object source) {
+		super(source);
+	}
 }

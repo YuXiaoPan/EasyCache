@@ -39,13 +39,13 @@ public class CachePutAnnotationTest extends TestBase {
 	public void cacheResultTest() {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache put
 		cachePutAnnotationTest.cacheResult();
-		assertEquals(getRedisOperator().getByKey(cacheKey, User.class), getUser());
+		assertEquals(getCacheOperator().getByKey(cacheKey, User.class), getUser());
 		//delete data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 	}
 
 	@CachePut(value = "CachePutAnnotationTest_cacheResult", cache = "#result")
@@ -57,13 +57,13 @@ public class CachePutAnnotationTest extends TestBase {
 	public void cacheParamTest() {
 		String cacheKey = generateCacheKey("user",getUser().getName());
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache put
 		cachePutAnnotationTest.cacheParam(getUser());
-		assertEquals(getRedisOperator().getByKey(cacheKey, User.class), getUser());
+		assertEquals(getCacheOperator().getByKey(cacheKey, User.class), getUser());
 		//delete data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 	}
 
 	@CachePut(value = "CachePutAnnotationTest_cacheParam", cache = "#user")

@@ -14,17 +14,13 @@
  *  limitations under the License.
  */
 
-package li.allan.observer.event;
+package li.allan.cache.operator.listener;
 
-import li.allan.monitor.RedisStatus;
-import li.allan.observer.event.base.ObserverEvent;
+import li.allan.monitor.RedisInfo;
 
 /**
  * @author LiALuN
  */
-public class RedisStatusUpdateEvent extends ObserverEvent {
-
-	public RedisStatusUpdateEvent(RedisStatus redisStatus) {
-		super(redisStatus);
-	}
+public interface CacheInfoEventListener {
+	void onRedisStatusUpdate(RedisInfo redisInfo);
 }

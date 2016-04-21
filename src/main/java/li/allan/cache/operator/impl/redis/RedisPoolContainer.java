@@ -16,33 +16,38 @@
 
 package li.allan.cache.operator.impl.redis;
 
-import li.allan.cache.operator.listener.ConfigUpdateListener;
-import li.allan.cache.operator.listener.RedisStatusUpdateListener;
+import li.allan.cache.operator.listener.CacheInfoEventListener;
+import li.allan.cache.operator.listener.ConfigUpdateEventListener;
 import li.allan.cache.shard.ConsistentHashShard;
 import li.allan.cache.shard.ShardMethod;
-import li.allan.config.base.CacheConfig;
+import li.allan.config.base.ConfigBase;
 import li.allan.config.base.RedisConfig;
 import li.allan.config.base.RedisConnectionConfig;
 import li.allan.exception.ConfigException;
 import li.allan.exception.NoAvailableRedisException;
 import li.allan.logging.Log;
 import li.allan.logging.LogFactory;
+import li.allan.monitor.RedisInfo;
 import li.allan.monitor.RedisStatus;
+import li.allan.observer.ObserverContainer;
+import li.allan.observer.event.RedisStatusChangeEvent;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author LiALuN
  */
-public class RedisPoolContainer implements ConfigUpdateListener, RedisStatusUpdateListener {
+public class RedisPoolContainer implements ConfigUpdateEventListener<RedisConfig>, CacheInfoEventListener {
 	private Log log = LogFactory.getLog(RedisPoolContainer.class);
-	private Map<RedisConnectionConfig, JedisPool> availableRedisPoolMap = new HashMap<RedisConnectionConfig, JedisPool>();
+	private Map<RedisConnectionConfig, JedisPool> availableRedisPoolMap = new ConcurrentHashMap<RedisConnectionConfig, JedisPool>();
 	private ShardMethod<JedisPool> shardMethod;
 	private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
@@ -66,42 +71,100 @@ public class RedisPoolContainer implements ConfigUpdateListener, RedisStatusUpda
 
 	/**
 	 * 初始化RedisPool
-	 *
-	 * @param redisConnectionConfigs
-	 * @param jedisPoolConfig
 	 */
-	private Map<RedisConnectionConfig, JedisPool> initRedisPoolMap(Set<RedisConnectionConfig> redisConnectionConfigs, JedisPoolConfig jedisPoolConfig) {
+	private void initRedisPoolMap(Set<RedisConnectionConfig> redisConnectionConfigs, JedisPoolConfig jedisPoolConfig) {
 		if (redisConnectionConfigs == null || redisConnectionConfigs.size() == 0) {
 			throw new ConfigException("Redis Connection can't be empty");
 		}
-		Map<RedisConnectionConfig, JedisPool> redisPoolMap = new HashMap<RedisConnectionConfig, JedisPool>();
-		for (RedisConnectionConfig rcc : redisConnectionConfigs) {
-			JedisPool jedisPool = new JedisPool(jedisPoolConfig, rcc.getHost(), rcc.getPort(),
-					rcc.getTimeout(), rcc.getPassword(), rcc.getDatabase());
-			redisPoolMap.put(rcc, jedisPool);
+		if (availableRedisPoolMap == null) {
+			availableRedisPoolMap = new HashMap<RedisConnectionConfig, JedisPool>();
 		}
-		return redisPoolMap;
+		closeRedisPoolMap();
+		for (RedisConnectionConfig redisConnectionConfig : redisConnectionConfigs) {
+			addRedisPool(redisConnectionConfig);
+		}
 	}
 
-	public int avaliableRedisNumber() {
+	/**
+	 * 关闭所有redis连接池，并清空PoolMap
+	 */
+	private void closeRedisPoolMap() {
+		if (availableRedisPoolMap == null) {
+			return;
+		}
+		Iterator<Map.Entry<RedisConnectionConfig, JedisPool>> entries = availableRedisPoolMap.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry<RedisConnectionConfig, JedisPool> entry = entries.next();
+			entry.getValue().close();
+			entries.remove();
+		}
+	}
+
+	private void addRedisPool(RedisConnectionConfig redisConnectionConfig) {
+		JedisPoolConfig jedisPoolConfig = ((RedisConfig) ConfigBase.getConfigProperties().getMainCacheConfig())
+				.getJedisPoolConfig();
+		JedisPool jedisPool = new JedisPool(jedisPoolConfig, redisConnectionConfig.getHost(), redisConnectionConfig.getPort(),
+				redisConnectionConfig.getTimeout(), redisConnectionConfig.getPassword(), redisConnectionConfig.getDatabase());
+		availableRedisPoolMap.put(redisConnectionConfig, jedisPool);
+	}
+
+	private void closeRedisPool(RedisConnectionConfig redisConnectionConfig) {
+		if (availableRedisPoolMap.containsKey(redisConnectionConfig)) {
+			JedisPool jedisPool = availableRedisPoolMap.get(redisConnectionConfig);
+			jedisPool.close();
+			availableRedisPoolMap.remove(redisConnectionConfig);
+		}
+	}
+
+	private void rebuildShardMethod() {
+		if (availableRedisPoolMap == null || availableRedisPoolMap.size() <= 0) {
+			shardMethod = null;
+		} else {
+			shardMethod = new ConsistentHashShard<JedisPool>(availableRedisPoolMap.values());
+		}
+	}
+
+	public int availableRedisNumber() {
 		return availableRedisPoolMap.size();
 	}
 
 	@Override
-	public void onConfigUpdate(CacheConfig cacheConfig) {
+	public void onConfigUpdate(RedisConfig cacheConfig) {
 		readWriteLock.writeLock().lock();
 		try {
-			availableRedisPoolMap = initRedisPoolMap(((RedisConfig) cacheConfig).getRedisConnectionConfigs(),
-					((RedisConfig) cacheConfig).getJedisPoolConfig());
-			shardMethod = new ConsistentHashShard<JedisPool>(availableRedisPoolMap.values());
+			initRedisPoolMap(cacheConfig.getRedisConnectionConfigs(), cacheConfig.getJedisPoolConfig());
+			rebuildShardMethod();
 		} finally {
 			readWriteLock.writeLock().unlock();
 		}
 	}
 
 	@Override
-	public void onRedisStatusUpdate(RedisStatus redisStatus) {
-		//TODO 等待写监控
-		shardMethod = new ConsistentHashShard<JedisPool>(availableRedisPoolMap.values());
+	public void onRedisStatusUpdate(RedisInfo redisInfo) {
+		if (redisInfo.isAvailable()) {
+			if (!availableRedisPoolMap.containsKey(redisInfo.getRedisConnectionConfig())) {
+				log.debug("EasyCache will add Redis instance:" + redisInfo);
+				readWriteLock.writeLock().lock();
+				try {
+					addRedisPool(redisInfo.getRedisConnectionConfig());
+					rebuildShardMethod();
+					ObserverContainer.sendEvent(new RedisStatusChangeEvent(new RedisStatus(availableRedisNumber(), redisInfo)));
+				} finally {
+					readWriteLock.writeLock().unlock();
+				}
+			}
+		} else {
+			if (availableRedisPoolMap.containsKey(redisInfo.getRedisConnectionConfig())) {
+				log.debug("EasyCache will remove Redis instance:" + redisInfo);
+				readWriteLock.writeLock().lock();
+				try {
+					closeRedisPool(redisInfo.getRedisConnectionConfig());
+					rebuildShardMethod();
+					ObserverContainer.sendEvent(new RedisStatusChangeEvent(new RedisStatus(availableRedisNumber(), redisInfo)));
+				} finally {
+					readWriteLock.writeLock().unlock();
+				}
+			}
+		}
 	}
 }

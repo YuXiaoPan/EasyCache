@@ -36,13 +36,13 @@ public class EasyCacheAnnotationTest extends TestBase {
 	public void baseMethodTest() {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.baseMethod(), easyCacheAnnotationTest.baseMethod());
 		Assert.assertTrue(isHaveRecord(cacheKey));
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 	}
 
 	@EasyCache
@@ -54,13 +54,13 @@ public class EasyCacheAnnotationTest extends TestBase {
 	public void withValueTest() {
 		String cacheKey = generateCacheKeyWithSpecifyCacheClassName("cacheName");
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.withValue(), easyCacheAnnotationTest.withValue());
 		Assert.assertTrue(isHaveRecord(cacheKey));
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 	}
 
 	@EasyCache("cacheName")
@@ -68,37 +68,37 @@ public class EasyCacheAnnotationTest extends TestBase {
 		return randomString(32);
 	}
 
-	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000)
-	public void withExpireTest() {
+	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000 + 1000)
+	public void withExpireTest() throws InterruptedException {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.withExpire(), easyCacheAnnotationTest.withExpire());
-		Assert.assertEquals(getRedisOperator().TTL(cacheKey), DEFAULT_TEST_EXPIRE_IN_SECOND * 2);
+		Thread.sleep(DEFAULT_TEST_EXPIRE_IN_SECOND * 1000 - 500);
 		Assert.assertTrue(isHaveRecord(cacheKey));
-		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		Thread.sleep(1000);
+		Assert.assertFalse(isHaveRecord(cacheKey));
 	}
 
-	@EasyCache(expired = "T(li.allan.Test_Constants).DEFAULT_TEST_EXPIRE_IN_SECOND * 2")
+	@EasyCache(expired = "T(li.allan.Test_Constants).DEFAULT_TEST_EXPIRE_IN_SECOND")
 	public String withExpire() {
 		return randomString(32);
 	}
 
-	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000)
-	public void withExpireMethodTest() {
+	@Test(timeOut = 5000)
+	public void withExpireMethodTest() throws InterruptedException {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.withExpireMethod(), easyCacheAnnotationTest.withExpireMethod());
-		Assert.assertEquals(getRedisOperator().TTL(cacheKey), 16888);
+		Thread.sleep(expireTime() * 1000 - 500);
 		Assert.assertTrue(isHaveRecord(cacheKey));
-		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		Thread.sleep(1000);
+		Assert.assertFalse(isHaveRecord(cacheKey));
 	}
 
 	@EasyCache(expired = "T(li.allan.annotation.EasyCacheAnnotationTest).expireTime()")
@@ -107,7 +107,7 @@ public class EasyCacheAnnotationTest extends TestBase {
 	}
 
 	public static int expireTime() {
-		return 16888;
+		return 3;
 	}
 
 	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 100000000)
@@ -117,36 +117,36 @@ public class EasyCacheAnnotationTest extends TestBase {
 		 */
 		String cacheKey = generateCacheKeyWithSpecifyCacheClassName("EasyCacheAnnotationTest_unlessIsFalse", "user", "LiALuN");
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertNotEquals(easyCacheAnnotationTest.unlessIsTrue(getUser()),
 				easyCacheAnnotationTest.unlessIsTrue(getUser()));
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 
 		cacheKey = generateCacheKeyWithSpecifyCacheClassName("EasyCacheAnnotationTest_unlessIsTrue", "user", "LiALuN");
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.unlessIsFalse(getUser()),
 				easyCacheAnnotationTest.unlessIsFalse(getUser()));
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		/*
 			test unless with method param
 		 */
 		cacheKey = generateCacheKeyWithSpecifyCacheClassName("EasyCacheAnnotationTest_unlessWithMethodParam", "user", "LiALuN");
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.unlessWithMethodParam(getUser()),
 				easyCacheAnnotationTest.unlessWithMethodParam(getUser()));
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 	}
 
 	@EasyCache(unless = "#result.getName() == 'LiALuN'")
@@ -167,17 +167,17 @@ public class EasyCacheAnnotationTest extends TestBase {
 		return user;
 	}
 
-	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000)
+	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 10000)
 	public void nullResultTest() {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
-		Assert.assertEquals(easyCacheAnnotationTest.nullResult(), easyCacheAnnotationTest.nullResult());
+		easyCacheAnnotationTest.nullResult();
 		Assert.assertTrue(isHaveRecord(cacheKey));
 		//clean dirty data
-		getRedisOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey);
 	}
 
 	@EasyCache

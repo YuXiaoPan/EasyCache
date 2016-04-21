@@ -19,8 +19,12 @@ package li.allan.cache.operator.impl.redis;
 import li.allan.cache.operator.BaseOperator;
 import li.allan.config.base.CacheConfig;
 import li.allan.config.base.ConfigBase;
+import li.allan.config.base.RedisConfig;
 import li.allan.exception.CacheOperationException;
-import li.allan.monitor.RedisStatus;
+import li.allan.monitor.RedisInfo;
+import li.allan.observer.EasyCacheObserver;
+import li.allan.observer.ObserverContainer;
+import li.allan.observer.event.RedisInfoEvent;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.util.SafeEncoder;
@@ -28,8 +32,12 @@ import redis.clients.util.SafeEncoder;
 /**
  * @author LiALuN
  */
-public class RedisOperator implements BaseOperator {
+public class RedisOperator implements BaseOperator, EasyCacheObserver<RedisInfoEvent> {
 	RedisPoolContainer redisPoolContainer = new RedisPoolContainer();
+
+	public RedisOperator() {
+		ObserverContainer.addObserver(this);
+	}
 
 	@Override
 	public void set(final String key, final Object value) throws CacheOperationException {
@@ -57,8 +65,8 @@ public class RedisOperator implements BaseOperator {
 	}
 
 	@Override
-	public <T> T getByKey(final String key, final Class<T> type) throws CacheOperationException {
-		return (T) new RedisOperatorTemplate<Object>(key) {
+	public <T> Object getByKey(final String key, final Class<T> type) throws CacheOperationException {
+		return new RedisOperatorTemplate<Object>(key) {
 			@Override
 			Object readFromRedis() {
 				return ConfigBase.getConfigProperties().getValueSerializer().deserialize(jedis.get(SafeEncoder.encode(key)), type);
@@ -88,7 +96,12 @@ public class RedisOperator implements BaseOperator {
 
 	@Override
 	public boolean isAvailable() {
-		return redisPoolContainer.avaliableRedisNumber() > 0;
+		return redisPoolContainer.availableRedisNumber() > 0;
+	}
+
+	@Override
+	public void eventUpdate(RedisInfoEvent event) {
+		redisPoolContainer.onRedisStatusUpdate((RedisInfo) event.getSource());
 	}
 
 	/**
@@ -122,11 +135,6 @@ public class RedisOperator implements BaseOperator {
 
 	@Override
 	public void onConfigUpdate(CacheConfig cacheConfig) {
-		redisPoolContainer.onConfigUpdate(cacheConfig);
-	}
-
-	@Override
-	public void onRedisStatusUpdate(RedisStatus redisStatus) {
-		redisPoolContainer.onRedisStatusUpdate(redisStatus);
+		redisPoolContainer.onConfigUpdate((RedisConfig) cacheConfig);
 	}
 }

@@ -14,38 +14,29 @@
  *  limitations under the License.
  */
 
-package li.allan.config;
+package li.allan.observer;
 
 import li.allan.TestBase;
-import li.allan.annotation.CachePutAnnotationTest;
-import li.allan.monitor.RedisInfo;
-import li.allan.monitor.RedisStatus;
-import li.allan.observer.EasyCacheObserver;
-import li.allan.observer.ObserverContainer;
+import li.allan.monitor.MonitorDaemon;
 import li.allan.observer.event.RedisInfoEvent;
-import li.allan.observer.event.RedisStatusChangeEvent;
+import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import javax.annotation.Resource;
 
 import static li.allan.Test_Constants.DEFAULT_TEST_EXPIRE_IN_SECOND;
 
 /**
  * @author LiALuN
  */
-public class SpringConfigTest extends TestBase {
-	@Resource
-	private CachePutAnnotationTest cachePutAnnotationTest;
-
-	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000000 * 2)
+public class RedisInfoObserverTest extends TestBase {
+	private boolean isS = false;
+	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000 * 2)
 	public void testName() throws Exception {
 		new RedisInfoObserver();
-		new RedisStatusObserver();
-//		while (true) {
-//			cachePutAnnotationTest.cacheResult();
-//			Thread.sleep(1000);
-//		}
-//		Thread.sleep(1000000);
+		MonitorDaemon.start();
+		Thread.sleep(DEFAULT_TEST_EXPIRE_IN_SECOND * 1000);
+		if (!isS) {
+			Assert.fail();
+		}
 	}
 
 	class RedisInfoObserver implements EasyCacheObserver<RedisInfoEvent> {
@@ -55,20 +46,7 @@ public class SpringConfigTest extends TestBase {
 
 		@Override
 		public void eventUpdate(RedisInfoEvent event) {
-			RedisInfo connConfig = (RedisInfo) event.getSource();
-			System.out.println("RedisInfoObserver: " + connConfig);
-		}
-	}
-
-	class RedisStatusObserver implements EasyCacheObserver<RedisStatusChangeEvent> {
-		public RedisStatusObserver() {
-			ObserverContainer.addObserver(this);
-		}
-
-		@Override
-		public void eventUpdate(RedisStatusChangeEvent event) {
-			RedisStatus connConfig = (RedisStatus) event.getSource();
-			System.out.println("RedisStatusObserver: " + connConfig);
+			isS = true;
 		}
 	}
 }

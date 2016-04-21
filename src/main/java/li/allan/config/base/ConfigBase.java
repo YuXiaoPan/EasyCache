@@ -16,6 +16,7 @@
 
 package li.allan.config.base;
 
+import li.allan.monitor.MonitorDaemon;
 import li.allan.observer.EasyCacheObservable;
 import li.allan.observer.event.ConfigUpdateEvent;
 import org.springframework.beans.factory.InitializingBean;
@@ -29,6 +30,7 @@ public abstract class ConfigBase extends EasyCacheObservable<ConfigUpdateEvent> 
 	public void initConfig() {
 		configProperties = initConfigProperties();
 		sendEvent(new ConfigUpdateEvent());
+		MonitorDaemon.start();
 	}
 
 	@Override

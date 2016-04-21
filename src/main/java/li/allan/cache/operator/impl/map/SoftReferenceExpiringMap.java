@@ -19,6 +19,7 @@ package li.allan.cache.operator.impl.map;
 import com.google.common.base.Objects;
 import li.allan.logging.Log;
 import li.allan.logging.LogFactory;
+import li.allan.utils.Constants;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
@@ -30,18 +31,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author LiALuN
  */
-public class SoftReferenceExpiringMap<K, V> implements ExpiringMap {
+public class SoftReferenceExpiringMap extends ExpiringMap {
 	private static Log log = LogFactory.getLog(SoftReferenceExpiringMap.class);
-	private final ConcurrentHashMap<K, SoftValue<V, K>> internalMap;
+	private final ConcurrentHashMap<String, SoftValue<Object, String>> internalMap;
 	private final DelayQueue<ExpiringKey> delayQueue;
-	private final ReferenceQueue<? super V> softReferenceQueue;
+	private final ReferenceQueue<? super Object> softReferenceQueue;
 	private int maxSize;
 
 	public SoftReferenceExpiringMap(int maxSize) {
 		this.maxSize = Math.max(16, maxSize);
-		internalMap = new ConcurrentHashMap<K, SoftValue<V, K>>(this.maxSize / 4, 0.9F);
+		internalMap = new ConcurrentHashMap<String, SoftValue<Object, String>>(this.maxSize / 4, 0.9F);
 		delayQueue = new DelayQueue<ExpiringKey>();
-		softReferenceQueue = new ReferenceQueue<V>();
+		softReferenceQueue = new ReferenceQueue<Object>();
 		Thread t = new Thread() {
 			@Override
 			public void run() {
@@ -65,39 +66,33 @@ public class SoftReferenceExpiringMap<K, V> implements ExpiringMap {
 	}
 
 	@Override
-	public boolean containsKey(Object key) {
+	public boolean containsKey(String key) {
 		processSoftReferenceQueue();
 		return internalMap.containsKey(key);
 	}
 
 	@Override
-	public V get(Object key) {
+	public Object get(String key) {
 		processSoftReferenceQueue();
-		V result = null;
-		SoftValue<V, K> value = internalMap.get(key);
-		if (value != null) {
-			result = value.get();
-			if (result == null) {
-				remove(key);
-			}
+		SoftValue<Object, String> value = internalMap.get(key);
+		if (value == null) {
+			return Constants.NO_DATA;
 		}
-		return result;
+		return value.get();
 	}
 
 	@Override
-	public void put(Object key, Object value, long expire, TimeUnit timeUnit) {
-		processSoftReferenceQueue(); // throw out garbage collected values first
+	public void put(String key, Object value, long expire, TimeUnit timeUnit) {
+		processSoftReferenceQueue();
 		if (internalMap.size() >= maxSize) {
 			return;
 		}
-		if (!internalMap.containsKey(key)) {
-			internalMap.put((K) key, new SoftValue<V, K>((V) value, (K) key, softReferenceQueue));
-			delayQueue.offer(new ExpiringKey(key, expire, timeUnit));
-		}
+		internalMap.put(key, new SoftValue(value, key, softReferenceQueue));
+		delayQueue.offer(new ExpiringKey(key, expire, timeUnit));
 	}
 
 	@Override
-	public void remove(Object key) {
+	public void remove(String key) {
 		if (internalMap.containsKey(key)) {
 			delayQueue.remove(ExpiringKey.useForRemove(key));
 			internalMap.remove(key);
@@ -182,17 +177,26 @@ public class SoftReferenceExpiringMap<K, V> implements ExpiringMap {
 				return this.getDelayMillis() - ((ExpiringKey) that).getDelayMillis() > 0 ? 1 : -1;
 			}
 		}
+
+		@Override
+		public String toString() {
+			return "ExpiringKey{" +
+					"startTime=" + startTime +
+					", expire=" + expire +
+					", key=" + key +
+					'}';
+		}
 	}
 
-	private static class SoftValue<V, K> extends SoftReference<V> {
-		private final K key;
+	private static class SoftValue<Object, String> extends SoftReference<Object> {
+		private final String key;
 
-		private SoftValue(V value, K key, ReferenceQueue<? super V> queue) {
+		private SoftValue(Object value, String key, ReferenceQueue<? super Object> queue) {
 			super(value, queue);
 			this.key = key;
 		}
 
-		public K getKey() {
+		public String getKey() {
 			return key;
 		}
 	}

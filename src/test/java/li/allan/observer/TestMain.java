@@ -18,7 +18,7 @@ package li.allan.observer;
 
 import li.allan.monitor.RedisStatus;
 import li.allan.observer.event.ConfigUpdateEvent;
-import li.allan.observer.event.RedisStatusUpdateEvent;
+import li.allan.observer.event.RedisStatusChangeEvent;
 import li.allan.observer.event.base.ObserverEvent;
 import org.testng.annotations.Test;
 
@@ -35,26 +35,27 @@ public class TestMain {
 		EasyCacheObservable observable = new EasyCacheObservable();
 		observable.sendEvent(new ConfigUpdateEvent());
 		System.out.println();
-		observable.sendEvent(new RedisStatusUpdateEvent(RedisStatus.unAvailable(null)));
+		observable.sendEvent(new RedisStatusChangeEvent(new RedisStatus(0, null)));
 	}
 
 	class GetConfigUpdate implements EasyCacheObserver<ConfigUpdateEvent> {
 		public GetConfigUpdate() {
 			ObserverContainer.addObserver(this);
 		}
+
 		@Override
 		public void eventUpdate(ConfigUpdateEvent event) {
 			System.out.println(1 + event.toString());
 		}
 	}
 
-	class GetRedisStatusUpdate implements EasyCacheObserver<RedisStatusUpdateEvent> {
+	class GetRedisStatusUpdate implements EasyCacheObserver<RedisStatusChangeEvent> {
 		public GetRedisStatusUpdate() {
 			ObserverContainer.addObserver(this);
 		}
 
 		@Override
-		public void eventUpdate(RedisStatusUpdateEvent event) {
+		public void eventUpdate(RedisStatusChangeEvent event) {
 			System.out.println(2 + event.toString());
 		}
 	}
@@ -63,6 +64,7 @@ public class TestMain {
 		public AllUpdate() {
 			ObserverContainer.addObserver(this);
 		}
+
 		@Override
 		public void eventUpdate(ObserverEvent event) {
 			System.out.println(3 + event.toString());

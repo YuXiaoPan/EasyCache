@@ -26,5 +26,12 @@ public class Constants {
 	public static final int DEFAULT_MAP_CACHE_SIZE = 20000;
 	public static final String RESULT = "result";
 	public static final int DEFAULT_MONITOR_INTERVAL = 1000;
-	public static final int DEFAULT_MONITOR_EXPIRE = 1000;
+	public static final int DEFAULT_MONITOR_CONNECTION_TIMEOUT = 1000;
+	public static final int DEFAULT_MONITOR_EXPIRE = 4000;
+
+	public static final byte[] EMPTY_ARRAY = new byte[0];
+	public static final Object NO_DATA = new NoData();
+
+	public static class NoData {
+	}
 }

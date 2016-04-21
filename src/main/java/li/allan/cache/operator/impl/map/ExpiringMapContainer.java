@@ -16,18 +16,29 @@
 
 package li.allan.cache.operator.impl.map;
 
-import li.allan.cache.operator.listener.ConfigUpdateListener;
+import li.allan.cache.operator.listener.ConfigUpdateEventListener;
 import li.allan.config.base.CacheConfig;
 import li.allan.config.base.ExpireMapConfig;
+import li.allan.logging.Log;
+import li.allan.logging.LogFactory;
+import li.allan.monitor.MainCacheStatus;
+import li.allan.observer.EasyCacheObserver;
+import li.allan.observer.ObserverContainer;
+import li.allan.observer.event.base.CacheStatusChangeEvent;
 
 /**
  * @author LiALuN
  */
-public class ExpiringMapContainer implements ConfigUpdateListener {
-	private ExpiringMap<String, Object> map;
+public class ExpiringMapContainer implements ConfigUpdateEventListener, EasyCacheObserver<CacheStatusChangeEvent> {
+	private ExpiringMap map;
+	private Log log = LogFactory.getLog(ExpiringMapContainer.class);
 
-	public ExpiringMap<String, Object> getMap() {
+	public ExpiringMap getMap() {
 		return map;
+	}
+
+	public ExpiringMapContainer() {
+		ObserverContainer.addObserver(this);
 	}
 
 	@Override
@@ -37,7 +48,18 @@ public class ExpiringMapContainer implements ConfigUpdateListener {
 				return;
 			}
 			if (cacheConfig != null && map == null) {
-				map = new SoftReferenceExpiringMap<String, Object>(((ExpireMapConfig) cacheConfig).getMaxSize());
+				map = new SoftReferenceExpiringMap(((ExpireMapConfig) cacheConfig).getMaxSize());
+			}
+		}
+	}
+
+	@Override
+	public void eventUpdate(CacheStatusChangeEvent event) {
+		if (event.getSource() instanceof MainCacheStatus) {
+			MainCacheStatus cacheStatus = (MainCacheStatus) event.getSource();
+			if (cacheStatus.getRemainCacheNumber() > 0 && map.size() > 0) {
+				log.debug("EasyCache backup cache clear,original cache number:" + map.size());
+				map.clear();
 			}
 		}
 	}

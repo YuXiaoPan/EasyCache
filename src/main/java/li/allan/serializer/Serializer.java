@@ -18,14 +18,10 @@ package li.allan.serializer;
 import li.allan.exception.SerializationException;
 
 public interface Serializer {
-	byte[] EMPTY_ARRAY = new byte[0];
-	Object NO_DATA = new NoData();
+
 
 	byte[] serialize(Object t) throws SerializationException;
 
 	Object deserialize(byte[] source, Class type) throws SerializationException;
 
-	class NoData {
-
-	}
 }

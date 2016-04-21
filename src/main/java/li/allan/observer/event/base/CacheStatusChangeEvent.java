@@ -14,13 +14,14 @@
  *  limitations under the License.
  */
 
-package li.allan.cache.operator.listener;
-
-import li.allan.config.base.CacheConfig;
+package li.allan.observer.event.base;
 
 /**
  * @author LiALuN
  */
-public interface ConfigUpdateListener {
-	void onConfigUpdate(CacheConfig cacheConfig);
+public class CacheStatusChangeEvent extends ObserverEvent {
+
+	public CacheStatusChangeEvent(Object source) {
+		super(source);
+	}
 }

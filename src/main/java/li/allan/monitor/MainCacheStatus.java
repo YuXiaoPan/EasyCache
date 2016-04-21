@@ -14,13 +14,19 @@
  *  limitations under the License.
  */
 
-package li.allan.cache.operator.listener;
-
-import li.allan.monitor.RedisStatus;
+package li.allan.monitor;
 
 /**
  * @author LiALuN
  */
-public interface RedisStatusUpdateListener {
-	void onRedisStatusUpdate(RedisStatus redisStatus);
+public abstract class MainCacheStatus {
+	private int remainCacheNumber;//剩余可用缓存实例数量
+
+	public int getRemainCacheNumber() {
+		return remainCacheNumber;
+	}
+
+	void setRemainCacheNumber(int remainCacheNumber) {
+		this.remainCacheNumber = remainCacheNumber;
+	}
 }

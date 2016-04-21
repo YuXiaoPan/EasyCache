@@ -14,19 +14,13 @@
  *  limitations under the License.
  */
 
-package li.allan.cache.operator;
+package li.allan.cache.operator.listener;
 
-import li.allan.exception.CacheOperationException;
+import li.allan.config.base.CacheConfig;
 
 /**
  * @author LiALuN
  */
-public interface CacheInterface {
-	void set(String key, Object value) throws CacheOperationException;
-
-	void setWithExpire(String key, Object value, int expire) throws CacheOperationException;
-
-	<T> Object getByKey(String key, Class<T> type) throws CacheOperationException;
-
-	void removeByKey(String key) throws CacheOperationException;
+public interface ConfigUpdateEventListener<T extends  CacheConfig> {
+	void onConfigUpdate(T cacheConfig);
 }

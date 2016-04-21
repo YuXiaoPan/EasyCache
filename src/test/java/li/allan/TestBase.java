@@ -16,13 +16,14 @@
 
 package li.allan;
 
-import li.allan.cache.operator.CacheOperator;
 import li.allan.cache.operator.impl.redis.RedisOperator;
+import li.allan.cache.operator.CacheOperator;
 import li.allan.domain.User;
-import li.allan.serializer.Serializer;
+import li.allan.utils.Constants;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import redis.embedded.RedisExecProvider;
 import redis.embedded.RedisServer;
@@ -42,7 +43,16 @@ public class TestBase extends AbstractTestNGSpringContextTests {
 		return CacheOperator.getInstance().getMainCacheOperator(RedisOperator.class);
 	}
 
+	public CacheOperator getCacheOperator() {
+		return CacheOperator.getInstance();
+	}
+
 	RedisServer redisServer;
+
+	@BeforeClass
+	public void waitMonitor() throws InterruptedException {
+		Thread.sleep(1000);
+	}
 
 	@BeforeSuite
 	public void startRedis() throws IOException {
@@ -111,7 +121,7 @@ public class TestBase extends AbstractTestNGSpringContextTests {
 	}
 
 	public boolean isHaveRecord(String key) {
-		Object resp = getRedisOperator().getByKey(key, Object.class);
-		return resp == null || !resp.equals(Serializer.NO_DATA);
+		Object resp = getCacheOperator().getByKey(key, Object.class);
+		return resp == null || !resp.equals(Constants.NO_DATA);
 	}
 }

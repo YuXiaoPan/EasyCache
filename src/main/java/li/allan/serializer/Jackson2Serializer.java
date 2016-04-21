@@ -25,6 +25,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import li.allan.exception.SerializationException;
 import org.springframework.util.Assert;
 
+import static li.allan.utils.Constants.EMPTY_ARRAY;
+import static li.allan.utils.Constants.NO_DATA;
+
 public class Jackson2Serializer implements Serializer {
 
 	private final ObjectMapper mapper;
