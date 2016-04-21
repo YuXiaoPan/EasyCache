@@ -60,6 +60,7 @@ public class ObserverContainer {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void sendEvent(ObserverEvent event) {
 		for (EasyCacheObserver observer : getRelatedObserver(event)) {
 			observer.eventUpdate(event);

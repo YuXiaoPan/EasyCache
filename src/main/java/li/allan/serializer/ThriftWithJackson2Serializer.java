@@ -56,7 +56,7 @@ public class ThriftWithJackson2Serializer implements Serializer {
 
 	@Override
 	public Object deserialize(byte[] source, Class type) throws SerializationException {
-		checkNotNull(type, "Deserialization type must not be null! Pleaes provide Object.class to make use of Jackson2 default typing.");
+		checkNotNull(type, "Deserialization type must not be null! Please provide Object.class to make use of Jackson2 default typing.");
 		if (source == null) {
 			return NO_DATA;
 		}

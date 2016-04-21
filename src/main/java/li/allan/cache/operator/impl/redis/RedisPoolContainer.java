@@ -54,8 +54,7 @@ public class RedisPoolContainer implements ConfigUpdateEventListener<RedisConfig
 	/**
 	 * 通过分片方法，得到JedisPool实例
 	 *
-	 * @param key
-	 * @return
+	 * @param key 缓存Key
 	 */
 	public JedisPool getJedisPool(String key) {
 		readWriteLock.readLock().lock();

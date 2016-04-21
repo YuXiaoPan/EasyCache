@@ -201,7 +201,7 @@ public class EasyCacheAspect extends MethodCache {
 			for (Annotation annotation : method.getParameterAnnotations()[i]) {
 				if (annotation instanceof KeyParam) {
 					methodParam.setKeyParam((KeyParam) annotation);
-					continue;
+					break;
 				}
 			}
 		}

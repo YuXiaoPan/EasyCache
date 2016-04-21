@@ -56,7 +56,7 @@ public class Jackson2Serializer implements Serializer {
 
 	@Override
 	public Object deserialize(byte[] source, Class type) throws SerializationException {
-		Assert.notNull(type, "Deserialization type must not be null! Pleaes provide Object.class to make use of Jackson2 default typing.");
+		Assert.notNull(type, "Deserialization type must not be null! Please provide Object.class to make use of Jackson2 default typing.");
 		if (source == null) {
 			return NO_DATA;
 		}

@@ -79,21 +79,19 @@ public class CacheOperator implements EasyCacheObserver<ConfigUpdateEvent>, Cach
 
 	@Override
 	public void eventUpdate(ConfigUpdateEvent event) {
-		if (event instanceof ConfigUpdateEvent) {
-			CacheConfig mainCacheConfig = ConfigBase.getConfigProperties().getMainCacheConfig();
-			if (mainCacheConfig instanceof RedisConfig) {
-				if (mainCacheOperator == null) {
-					mainCacheOperator = new RedisOperator();
-				}
-				mainCacheOperator.onConfigUpdate(ConfigBase.getConfigProperties().getMainCacheConfig());
+		CacheConfig mainCacheConfig = ConfigBase.getConfigProperties().getMainCacheConfig();
+		if (mainCacheConfig instanceof RedisConfig) {
+			if (mainCacheOperator == null) {
+				mainCacheOperator = new RedisOperator();
 			}
-			CacheConfig backupCacheConfig = ConfigBase.getConfigProperties().getBackupCacheConfig();
-			if (backupCacheConfig instanceof ExpireMapConfig) {
-				if (backupCacheOperator == null) {
-					backupCacheOperator = new ExpiringMapOperator();
-				}
-				backupCacheOperator.onConfigUpdate(ConfigBase.getConfigProperties().getBackupCacheConfig());
+			mainCacheOperator.onConfigUpdate(ConfigBase.getConfigProperties().getMainCacheConfig());
+		}
+		CacheConfig backupCacheConfig = ConfigBase.getConfigProperties().getBackupCacheConfig();
+		if (backupCacheConfig instanceof ExpireMapConfig) {
+			if (backupCacheOperator == null) {
+				backupCacheOperator = new ExpiringMapOperator();
 			}
+			backupCacheOperator.onConfigUpdate(ConfigBase.getConfigProperties().getBackupCacheConfig());
 		}
 	}
 

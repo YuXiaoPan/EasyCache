@@ -39,11 +39,11 @@ public class SpELUtils {
 	}
 
 	public static boolean condition(Object object, String SpEL) {
-		return ((Boolean) getValue(object, SpEL)).booleanValue();
+		return (Boolean) getValue(object, SpEL);
 	}
 
 	public static boolean condition(StandardEvaluationContext context, String SpEL) {
-		return ((Boolean) getValue(context, SpEL)).booleanValue();
+		return (Boolean) getValue(context, SpEL);
 	}
 
 	private static final StandardEvaluationContext timeContext = new StandardEvaluationContext();

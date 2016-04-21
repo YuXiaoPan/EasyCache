@@ -29,14 +29,6 @@ public class JdkSerializer implements Serializer {
 	private Converter<Object, byte[]> serializer = new SerializingConverter();
 	private Converter<byte[], Object> deserializer = new DeserializingConverter();
 
-	public static void main(String[] args) {
-		JdkSerializer s = new JdkSerializer();
-		byte[] b = s.serialize(null);
-		System.out.println(b);
-		Object o = s.deserialize(b, Object.class);
-		System.out.println(o);
-	}
-
 	@Override
 	public Object deserialize(byte[] source, Class type) {
 		if (source == null) {

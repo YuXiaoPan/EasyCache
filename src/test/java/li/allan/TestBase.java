@@ -70,7 +70,7 @@ public class TestBase extends AbstractTestNGSpringContextTests {
 	public static String randomString(int length) {
 		String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 		Random random = new Random();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		for (int i = 0; i < length; i++) {
 			int num = random.nextInt(str.length());
 			buf.append(str.charAt(num));

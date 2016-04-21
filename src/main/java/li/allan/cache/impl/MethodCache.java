@@ -70,9 +70,6 @@ public class MethodCache {
 	}
 
 	protected Object getValueFromInvoke(String unlessSpEL, Object result, List<MethodParam> params) {
-//		if (Strings.isNullOrEmpty(unlessSpEL)) {
-//			return SPELE;
-//		}
 		try {
 			StandardEvaluationContext context = setSpELVariable(result, params);
 			return getValue(context, unlessSpEL);
@@ -84,7 +81,7 @@ public class MethodCache {
 	private StandardEvaluationContext setSpELVariable(Object result, List<MethodParam> params) {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		context.setVariable(RESULT, result);
-		if (params != null || params.size() > 0) {
+		if (params != null && params.size() > 0) {
 			for (MethodParam param : params) {
 				context.setVariable(param.getParamName(), param.getValue());
 			}
@@ -132,7 +129,7 @@ public class MethodCache {
 		 */
 		List<ParamWithOrder> paramWithOrders = new ArrayList<ParamWithOrder>();
 		for (MethodParam methodParam : methodParams) {
-			if (methodParam.getKeyParam() != null && methodParam.getKeyParam().use() == false) {
+			if (methodParam.getKeyParam() != null && !methodParam.getKeyParam().use()) {
 				continue;
 			}
 			String name = getMethodParamCacheName(methodParam);

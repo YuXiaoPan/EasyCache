@@ -28,7 +28,7 @@ public @interface CachePut {
 	/**
 	 * cache key replace for method part.
 	 * cache key has two parts: method part and param part,it's connect by #{@link li.allan.utils.Constants#KEY_SEPARATOR}
-	 * like {method part}_{param part}.if #{@link #value()} leave blank,method part will be {class name}_{method name}
+	 * like {method part}_{param part}.if value() leave blank,method part will be {class name}_{method name}
 	 */
 	String value();
 
@@ -40,8 +40,6 @@ public @interface CachePut {
 
 	/**
 	 * 缓存的数据
-	 *
-	 * @return
 	 */
 	String cache();
 
