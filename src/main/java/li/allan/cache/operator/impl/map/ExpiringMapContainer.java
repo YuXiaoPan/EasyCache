@@ -44,7 +44,6 @@ public class ExpiringMapContainer implements ConfigUpdateEventListener, EasyCach
 	@Override
 	public void onConfigUpdate(CacheConfig cacheConfig) {
 		synchronized (this) {
-			//TODO change map size,rehash
 			if (map == null) {
 				map = new SoftReferenceExpiringMap(((ExpireMapConfig) cacheConfig).getMaxSize());
 			}
