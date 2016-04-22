@@ -46,7 +46,7 @@ public @interface KeyParam {
 	String param() default "";
 
 	/**
-	 * 参数是否加入缓存Key
+	 * 是否忽略本参数作为缓存KEY。
 	 */
-	boolean use() default true;
+	boolean ignore() default false;
 }

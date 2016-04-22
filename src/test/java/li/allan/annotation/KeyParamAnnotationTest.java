@@ -100,7 +100,7 @@ public class KeyParamAnnotationTest extends TestBase {
 	}
 
 	@EasyCache
-	public String someParamNotCache(String p1, @KeyParam(use = false) String p2, @KeyParam String p3) {
+	public String someParamNotCache(String p1, @KeyParam(ignore = true) String p2, @KeyParam String p3) {
 		return randomString(32);
 	}
 

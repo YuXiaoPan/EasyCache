@@ -129,7 +129,7 @@ public class MethodCache {
 		 */
 		List<ParamWithOrder> paramWithOrders = new ArrayList<ParamWithOrder>();
 		for (MethodParam methodParam : methodParams) {
-			if (methodParam.getKeyParam() != null && !methodParam.getKeyParam().use()) {
+			if (methodParam.getKeyParam() != null && methodParam.getKeyParam().ignore()) {
 				continue;
 			}
 			String name = getMethodParamCacheName(methodParam);
