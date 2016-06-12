@@ -35,7 +35,7 @@ public class ObserverContainer {
 	private ObserverContainer() {
 	}
 
-	public static synchronized void addObserver(EasyCacheObserver observer) {
+	public static void addObserver(EasyCacheObserver observer) {
 		readWriteLock.writeLock().lock();
 		try {
 			Class eventClass = getObserverEventClass(observer);
@@ -48,7 +48,7 @@ public class ObserverContainer {
 		}
 	}
 
-	public static synchronized void removeObserver(EasyCacheObserver observer) {
+	public static void removeObserver(EasyCacheObserver observer) {
 		readWriteLock.writeLock().lock();
 		try {
 			Class eventClass = getObserverEventClass(observer);
@@ -62,8 +62,13 @@ public class ObserverContainer {
 
 	@SuppressWarnings("unchecked")
 	public static void sendEvent(ObserverEvent event) {
-		for (EasyCacheObserver observer : getRelatedObserver(event)) {
-			observer.eventUpdate(event);
+		readWriteLock.readLock().lock();
+		try {
+			for (EasyCacheObserver observer : getRelatedObserver(event)) {
+				observer.eventUpdate(event);
+			}
+		} finally {
+			readWriteLock.readLock().unlock();
 		}
 	}
 
