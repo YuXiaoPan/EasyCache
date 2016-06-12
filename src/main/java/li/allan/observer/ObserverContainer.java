@@ -16,6 +16,8 @@
 
 package li.allan.observer;
 
+import li.allan.logging.Log;
+import li.allan.logging.LogFactory;
 import li.allan.observer.event.base.ObserverEvent;
 
 import java.lang.reflect.ParameterizedType;
@@ -28,7 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author LiALuN
  */
 public class ObserverContainer {
-
+	private static Log log = LogFactory.getLog(ObserverContainer.class);
 	private static Map<Class, Set<EasyCacheObserver>> obContainer = new HashMap<Class, Set<EasyCacheObserver>>();
 	private static ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
@@ -62,13 +64,12 @@ public class ObserverContainer {
 
 	@SuppressWarnings("unchecked")
 	public static void sendEvent(ObserverEvent event) {
-		readWriteLock.readLock().lock();
 		try {
 			for (EasyCacheObserver observer : getRelatedObserver(event)) {
 				observer.eventUpdate(event);
 			}
-		} finally {
-			readWriteLock.readLock().unlock();
+		} catch (Exception e) {
+			log.error("EasyCache event execute ERROR", e);
 		}
 	}
 

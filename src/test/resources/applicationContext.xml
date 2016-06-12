@@ -36,7 +36,6 @@
     <easycache:config>
         <easycache:redis>
             <easycache:connections>
-                <!--<easycache:connection host="192.168.196.128" port="7000"/>-->
                 <easycache:connection host="localhost" port="16389"/>
             </easycache:connections>
             <easycache:pool ref="jedisPoolConfig"/>
@@ -44,7 +43,7 @@
         <easycache:backup size="2000"/>
         <easycache:defaultCacheExpire seconds="15"/>
         <easycache:keySerializer class="li.allan.serializer.StringSerializer"/>
-        <easycache:valueSerializer class="li.allan.serializer.ThriftWithJackson2Serializer"/>
+        <easycache:valueSerializer class="li.allan.serializer.Jackson2Serializer"/>
     </easycache:config>
 
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">

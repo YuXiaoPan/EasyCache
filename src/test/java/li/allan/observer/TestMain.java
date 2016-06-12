@@ -94,6 +94,7 @@ public class TestMain {
 		@Override
 		public void eventUpdate(ConfigUpdateEvent event) {
 			System.out.println(5 + event.toString());
+			throw new RuntimeException();
 		}
 	}
 

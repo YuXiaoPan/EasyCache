@@ -27,13 +27,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static li.allan.utils.Constants.EMPTY_ARRAY;
 import static li.allan.utils.Constants.NO_DATA;
 
-public class ThriftWithJackson2Serializer implements Serializer {
+public class ThriftSerializer implements Serializer {
 
-	private final Jackson2Serializer jackson2Serializer;
 	private final StringSerializer stringSerializer;
 
-	public ThriftWithJackson2Serializer() {
-		jackson2Serializer = new Jackson2Serializer();
+	public ThriftSerializer() {
 		stringSerializer = new StringSerializer();
 	}
 
@@ -42,15 +40,11 @@ public class ThriftWithJackson2Serializer implements Serializer {
 		if (source == null) {
 			return EMPTY_ARRAY;
 		}
-		if (source instanceof TBase) {
-			try {
-				String tmp = new TSerializer(new TJSONProtocol.Factory()).toString((TBase) source, "UTF-8");
-				return stringSerializer.serialize(tmp);
-			} catch (TException e) {
-				throw new SerializationException("Thrift Object serialize to Json FAIL: " + e.getMessage(), e);
-			}
-		} else {
-			return jackson2Serializer.serialize(source);
+		try {
+			String tmp = new TSerializer(new TJSONProtocol.Factory()).toString((TBase) source, "UTF-8");
+			return stringSerializer.serialize(tmp);
+		} catch (TException e) {
+			throw new SerializationException("Thrift Serialize to Json FAIL: " + e.getMessage(), e);
 		}
 	}
 
@@ -63,16 +57,12 @@ public class ThriftWithJackson2Serializer implements Serializer {
 		if (source.length == 0) {
 			return null;
 		}
-		if (TBase.class.isAssignableFrom(type)) {
-			try {
-				TBase obj = (TBase) type.newInstance();
-				new TDeserializer(new TJSONProtocol.Factory()).deserialize(obj, stringSerializer.deserialize(source, String.class), "UTF-8");
-				return obj;
-			} catch (Exception e) {
-				throw new SerializationException("Could not Deserializer: " + e.getMessage(), e);
-			}
-		} else {
-			return jackson2Serializer.deserialize(source, type);
+		try {
+			TBase obj = (TBase) type.newInstance();
+			new TDeserializer(new TJSONProtocol.Factory()).deserialize(obj, stringSerializer.deserialize(source, String.class), "UTF-8");
+			return obj;
+		} catch (Exception e) {
+			throw new SerializationException("Thrift Deserialize to Json FAIL: " + e.getMessage(), e);
 		}
 	}
 }

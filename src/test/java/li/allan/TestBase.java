@@ -16,8 +16,8 @@
 
 package li.allan;
 
-import li.allan.cache.operator.impl.redis.RedisOperator;
 import li.allan.cache.operator.CacheOperator;
+import li.allan.cache.operator.impl.redis.RedisOperator;
 import li.allan.domain.User;
 import li.allan.utils.Constants;
 import org.springframework.test.context.ContextConfiguration;
@@ -27,12 +27,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import redis.embedded.RedisExecProvider;
 import redis.embedded.RedisServer;
+import redis.embedded.util.Architecture;
+import redis.embedded.util.OS;
 
 import java.io.IOException;
 import java.util.Random;
 
+import static li.allan.Test_Constants.*;
 import static li.allan.Test_Constants.KEY_SEPARATOR;
-import static li.allan.Test_Constants.TEST_REDIS_PORT;
 
 /**
  * @author LiALuN
@@ -56,8 +58,8 @@ public class TestBase extends AbstractTestNGSpringContextTests {
 
 	@BeforeSuite
 	public void startRedis() throws IOException {
-		RedisExecProvider customProvider = RedisExecProvider.defaultProvider();
-//				.override(OS.WINDOWS, Architecture.x86_64, "D:\\Redis-x64-3.0.501\\redis-server.exe");
+		RedisExecProvider customProvider = RedisExecProvider.defaultProvider()
+				.override(OS.WINDOWS, Architecture.x86_64, "D:\\Java\\Redis\\redis-server.exe");
 		redisServer = new RedisServer(customProvider, TEST_REDIS_PORT);
 		redisServer.start();
 	}
