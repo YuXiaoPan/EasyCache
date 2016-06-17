@@ -34,6 +34,8 @@ public class Jackson2Serializer implements Serializer {
 
 	public Jackson2Serializer() {
 		mapper = new ObjectMapper();
+		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
 		mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, As.PROPERTY);
 		mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 		mapper.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, true);

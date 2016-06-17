@@ -27,11 +27,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static li.allan.utils.Constants.EMPTY_ARRAY;
 import static li.allan.utils.Constants.NO_DATA;
 
-public class ThriftSerializer implements Serializer {
+public class ThriftJsonSerializer implements Serializer {
 
 	private final StringSerializer stringSerializer;
 
-	public ThriftSerializer() {
+	public ThriftJsonSerializer() {
 		stringSerializer = new StringSerializer();
 	}
 
@@ -62,7 +62,7 @@ public class ThriftSerializer implements Serializer {
 			new TDeserializer(new TJSONProtocol.Factory()).deserialize(obj, stringSerializer.deserialize(source, String.class), "UTF-8");
 			return obj;
 		} catch (Exception e) {
-			throw new SerializationException("Thrift Deserialize to Json FAIL: " + e.getMessage(), e);
+			throw new SerializationException("Thrift Deserialize to Json FAIL:  " + e.getMessage(), e);
 		}
 	}
 }

@@ -18,10 +18,13 @@ package li.allan.domain;
 
 import com.google.common.base.Objects;
 
+import java.io.Serializable;
+
 /**
  * @author LiALuN
  */
-public class User {
+public class User implements Serializable {
+
 	private String name;
 	private int age;
 
