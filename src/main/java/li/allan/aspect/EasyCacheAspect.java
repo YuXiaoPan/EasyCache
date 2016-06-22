@@ -208,8 +208,16 @@ public class EasyCacheAspect extends MethodCache {
 		return list;
 	}
 
-	private static Method getMethodFromProceedingJoinPoint(ProceedingJoinPoint point) {
+	private static Method getMethodFromProceedingJoinPoint(ProceedingJoinPoint point) throws NoSuchMethodException {
+		//get method from MethodSignature
 		MethodSignature signature = (MethodSignature) point.getSignature();
-		return signature.getMethod();
+		Method method = signature.getMethod();
+		// signature.getMethod() will return the method of the interface,
+		// be sure to get the method of the implementation class
+		if (method.getDeclaringClass().isInterface()) {
+			method = point.getTarget().getClass().getDeclaredMethod(point.getSignature().getName(),
+					method.getParameterTypes());
+		}
+		return method;
 	}
 }
