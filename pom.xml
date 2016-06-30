@@ -4,7 +4,7 @@
 
     <groupId>li.allan</groupId>
     <artifactId>easycache</artifactId>
-    <version>0.6</version>
+    <version>0.6-pre2</version>
     <packaging>jar</packaging>
 
     <name>EasyCache</name>

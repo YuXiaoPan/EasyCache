@@ -61,6 +61,9 @@ public class EasyCacheAspect extends MethodCache {
 		String className = point.getTarget().getClass().getSimpleName();
 		Method method = getMethodFromProceedingJoinPoint(point);
 		Class returnType = method.getReturnType();
+		if (returnType.getName().equals("void")) {
+			return point.proceed();
+		}
 		List<MethodParam> methodParams = getParamsFromMethod(method, point.getArgs());
 		EasyCache cache = getMethodFromProceedingJoinPoint(point).getAnnotation(EasyCache.class);
 		log.debug("Annotation Cache Method Start,Proceeding Join Point at " + className + "." + method.getName());
