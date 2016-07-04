@@ -61,42 +61,43 @@ public class EasyCacheAspect extends MethodCache {
 		String className = point.getTarget().getClass().getSimpleName();
 		Method method = getMethodFromProceedingJoinPoint(point);
 		Class returnType = method.getReturnType();
+		//method return void don't need cache
 		if (returnType.getName().equals("void")) {
 			return point.proceed();
 		}
 		List<MethodParam> methodParams = getParamsFromMethod(method, point.getArgs());
 		EasyCache cache = getMethodFromProceedingJoinPoint(point).getAnnotation(EasyCache.class);
-		log.debug("Annotation Cache Method Start,Proceeding Join Point at " + className + "." + method.getName());
+		log.debug("Annotation cache method start, proceeding join point at " + className + "." + method.getName());
 		/**
 		 * generate cache key
 		 */
 		String cacheKeyName = getCacheKeyName(cache.value(), className, method.getName(), methodParams);
-		log.debug("generate Cache Key=" + cacheKeyName);
+		log.debug("Generate cache key = " + cacheKeyName);
 		/**
 		 * try to get cache
 		 */
 		try {
-			log.debug("try to read data from cache");
+			log.debug("Try to get cache");
 			Object resp = getCacheOperator().getByKey(cacheKeyName, returnType);
 			if (!(resp instanceof NoData)) {
 				return resp;
 			}
 		} catch (SerializationException e) {
-			log.warn("EasyCache Deserialization FAIL", e);
+			log.warn("EasyCache deserialization FAIL", e);
 		} catch (Exception e) {
-			log.error("EasyCache Get Data ERROR", e);
+			log.error("EasyCache get cache ERROR", e);
 		}
 		/**
-		 * proceed method
+		 * invoke method
 		 */
-		log.debug("invoke origin method");
+		log.debug("Invoke origin method");
 		Object resp = point.proceed();
 		/**
 		 * save cache data
 		 */
 		try {
 			if (!onCondition(cache.unless(), resp, methodParams)) {
-				log.debug("try to save origin method value");
+				log.debug("Try to set cache");
 				int expireTime = expireTime(cache.expired());
 				if (expireTime < 0) {
 					getCacheOperator().set(cacheKeyName, resp);
@@ -105,7 +106,7 @@ public class EasyCacheAspect extends MethodCache {
 				}
 			}
 		} catch (Exception e) {
-			log.error("EasyCache Save Data ERROR", e);
+			log.error("EasyCache set cache ERROR", e);
 		}
 		return resp;
 	}
@@ -124,12 +125,12 @@ public class EasyCacheAspect extends MethodCache {
 		Method method = getMethodFromProceedingJoinPoint(point);
 		List<MethodParam> methodParams = getParamsFromMethod(method, point.getArgs());
 		CacheDel cacheDel = getMethodFromProceedingJoinPoint(point).getAnnotation(CacheDel.class);
-		log.debug("Annotation CacheDel Method Start,Proceeding Join Point at " + className + "." + method.getName());
+		log.debug("Annotation cacheDel method start, proceeding join point at " + className + "." + method.getName());
 		/**
 		 * generate cache key
 		 */
 		String cacheKeyName = getCacheKeyName(cacheDel.value(), className, method.getName(), methodParams);
-		log.debug("generate Cache Key=" + cacheKeyName);
+		log.debug("Generate cache key = " + cacheKeyName);
 		/**
 		 * proceed method
 		 */
@@ -139,11 +140,11 @@ public class EasyCacheAspect extends MethodCache {
 		 */
 		try {
 			if (!onCondition(cacheDel.unless(), resp, methodParams)) {
-				log.debug("try to delete cache data");
+				log.debug("Try to delete cache");
 				getCacheOperator().removeByKey(cacheKeyName);
 			}
 		} catch (Exception e) {
-			log.error("EasyCache Delete Data ERROR", e);
+			log.error("EasyCache delete cache ERROR", e);
 		}
 		return resp;
 	}
@@ -162,12 +163,12 @@ public class EasyCacheAspect extends MethodCache {
 		Method method = getMethodFromProceedingJoinPoint(point);
 		List<MethodParam> methodParams = getParamsFromMethod(method, point.getArgs());
 		CachePut cachePut = getMethodFromProceedingJoinPoint(point).getAnnotation(CachePut.class);
-		log.debug("Annotation CachePut Method Start,Proceeding Join Point at " + className + "." + method.getName());
+		log.debug("Annotation cachePut method start, proceeding join point at " + className + "." + method.getName());
 		/**
 		 * generate cache key
 		 */
 		String cacheKeyName = getCacheKeyName(cachePut.value(), className, method.getName(), methodParams);
-		log.debug("generate Cache Key=" + cacheKeyName);
+		log.debug("Generate cache key = " + cacheKeyName);
 		/**
 		 * proceed method
 		 */
@@ -177,7 +178,7 @@ public class EasyCacheAspect extends MethodCache {
 		 */
 		try {
 			if (!onCondition(cachePut.unless(), resp, methodParams)) {
-				log.debug("try to update cache data");
+				log.debug("Try to update cache data");
 				Object cacheObject = getValueFromInvoke(cachePut.cache(), resp, methodParams);
 				int expireTime = expireTime(cachePut.expired());
 				if (expireTime < 0) {
@@ -187,7 +188,7 @@ public class EasyCacheAspect extends MethodCache {
 				}
 			}
 		} catch (Exception e) {
-			log.error("EasyCache Update Data ERROR", e);
+			log.error("EasyCache update data ERROR", e);
 		}
 		return resp;
 	}
