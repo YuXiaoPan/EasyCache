@@ -40,11 +40,11 @@ public class SpringConfig extends ConfigBase {
 		tmp.setBackupCacheConfig(backupCacheConfig);
 	}
 
-	public void setKeySerializer(Serializer keySerializer) {
+	public void setKeySerializer(Class<? extends Serializer> keySerializer) {
 		tmp.setKeySerializer(keySerializer);
 	}
 
-	public void setValueSerializer(Serializer valueSerializer) {
+	public void setValueSerializer(Class<? extends Serializer> valueSerializer) {
 		tmp.setValueSerializer(valueSerializer);
 	}
 

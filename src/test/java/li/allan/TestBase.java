@@ -18,7 +18,10 @@ package li.allan;
 
 import li.allan.cache.operator.CacheOperator;
 import li.allan.cache.operator.impl.redis.RedisOperator;
+import li.allan.config.base.ConfigBase;
 import li.allan.domain.User;
+import li.allan.serializer.Serializer;
+import li.allan.serializer.SerializerContainer;
 import li.allan.utils.Constants;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -33,8 +36,8 @@ import redis.embedded.util.OS;
 import java.io.IOException;
 import java.util.Random;
 
-import static li.allan.Test_Constants.*;
 import static li.allan.Test_Constants.KEY_SEPARATOR;
+import static li.allan.Test_Constants.TEST_REDIS_PORT;
 
 /**
  * @author LiALuN
@@ -123,7 +126,21 @@ public class TestBase extends AbstractTestNGSpringContextTests {
 	}
 
 	public boolean isHaveRecord(String key) {
-		Object resp = getCacheOperator().getByKey(key, Object.class);
+		return isHaveRecord(key, null);
+	}
+
+	public boolean isHaveRecord(String key, Class<? extends Serializer> serializer) {
+		Object resp = getCacheOperator().getByKey(key, Object.class, getKeySerializer(), getValueSerializer(serializer));
 		return resp == null || !resp.equals(Constants.NO_DATA);
+	}
+
+	public Serializer getKeySerializer() {
+		return SerializerContainer.getSerializer(ConfigBase.getConfigProperties().getKeySerializer());
+	}
+	public Serializer getValueSerializer() {
+		return getValueSerializer(null);
+	}
+	public Serializer getValueSerializer(Class<? extends Serializer> serializer) {
+		return SerializerContainer.getSerializer(serializer == null ? ConfigBase.getConfigProperties().getValueSerializer() : serializer);
 	}
 }

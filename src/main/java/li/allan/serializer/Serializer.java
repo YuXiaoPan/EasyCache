@@ -17,11 +17,12 @@ package li.allan.serializer;
 
 import li.allan.exception.SerializationException;
 
-public interface Serializer {
+public abstract class Serializer {
 
+	Serializer(){}
 
-	byte[] serialize(Object t) throws SerializationException;
+	abstract public byte[] serialize(Object t) throws SerializationException;
 
-	Object deserialize(byte[] source, Class type) throws SerializationException;
+	abstract public Object deserialize(byte[] source, Class type) throws SerializationException;
 
 }

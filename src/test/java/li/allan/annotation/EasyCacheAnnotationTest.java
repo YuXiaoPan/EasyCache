@@ -18,6 +18,7 @@ package li.allan.annotation;
 
 import li.allan.TestBase;
 import li.allan.domain.User;
+import li.allan.serializer.JdkSerializer;
 import org.springframework.stereotype.Component;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -36,13 +37,13 @@ public class EasyCacheAnnotationTest extends TestBase {
 	public void baseMethodTest() {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.baseMethod(), easyCacheAnnotationTest.baseMethod());
 		Assert.assertTrue(isHaveRecord(cacheKey));
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 	}
 
 	@EasyCache
@@ -54,13 +55,13 @@ public class EasyCacheAnnotationTest extends TestBase {
 	public void withValueTest() {
 		String cacheKey = generateCacheKeyWithSpecifyCacheClassName("cacheName");
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.withValue(), easyCacheAnnotationTest.withValue());
 		Assert.assertTrue(isHaveRecord(cacheKey));
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 	}
 
 	@EasyCache("cacheName")
@@ -72,7 +73,7 @@ public class EasyCacheAnnotationTest extends TestBase {
 	public void withExpireTest() throws InterruptedException {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.withExpire(), easyCacheAnnotationTest.withExpire());
@@ -91,7 +92,7 @@ public class EasyCacheAnnotationTest extends TestBase {
 	public void withExpireMethodTest() throws InterruptedException {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.withExpireMethod(), easyCacheAnnotationTest.withExpireMethod());
@@ -117,36 +118,36 @@ public class EasyCacheAnnotationTest extends TestBase {
 		 */
 		String cacheKey = generateCacheKeyWithSpecifyCacheClassName("EasyCacheAnnotationTest_unlessIsFalse", "user", "LiALuN");
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertNotEquals(easyCacheAnnotationTest.unlessIsTrue(getUser()),
 				easyCacheAnnotationTest.unlessIsTrue(getUser()));
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 
 		cacheKey = generateCacheKeyWithSpecifyCacheClassName("EasyCacheAnnotationTest_unlessIsTrue", "user", "LiALuN");
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.unlessIsFalse(getUser()),
 				easyCacheAnnotationTest.unlessIsFalse(getUser()));
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		/*
 			test unless with method param
 		 */
 		cacheKey = generateCacheKeyWithSpecifyCacheClassName("EasyCacheAnnotationTest_unlessWithMethodParam", "user", "LiALuN");
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		Assert.assertEquals(easyCacheAnnotationTest.unlessWithMethodParam(getUser()),
 				easyCacheAnnotationTest.unlessWithMethodParam(getUser()));
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 	}
 
 	@EasyCache(unless = "#result.getName() == 'LiALuN'")
@@ -167,21 +168,40 @@ public class EasyCacheAnnotationTest extends TestBase {
 		return user;
 	}
 
-	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 10000)
+	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 10000000)
 	public void nullResultTest() {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache
 		easyCacheAnnotationTest.nullResult();
 		Assert.assertTrue(isHaveRecord(cacheKey));
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 	}
 
 	@EasyCache
 	public String nullResult() {
 		return null;
 	}
+
+	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000000)
+	public void withSerializerTest() {
+		String cacheKey = generateCacheKey();
+		//clean dirty data
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
+		Assert.assertTrue(!isHaveRecord(cacheKey));
+		//test cache
+		Assert.assertEquals(easyCacheAnnotationTest.withSerializer(), easyCacheAnnotationTest.withSerializer());
+		Assert.assertTrue(isHaveRecord(cacheKey,JdkSerializer.class));
+		//clean dirty data
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
+	}
+
+	@EasyCache(serializer = JdkSerializer.class)
+	public String withSerializer() {
+		return randomString(32);
+	}
+
 }

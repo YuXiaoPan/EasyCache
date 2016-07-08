@@ -157,8 +157,7 @@ public class EasyCacheNamespaceHandler extends NamespaceHandlerSupport {
 			if (!Strings.isNullOrEmpty(keySerializerElements.get(0).getAttribute("class"))) {
 				try {
 					Class cls = Class.forName(keySerializerElements.get(0).getAttribute("class"));
-					Serializer serializer = (Serializer) cls.newInstance();
-					factory.addPropertyValue("keySerializer", serializer);
+					factory.addPropertyValue("keySerializer", cls);
 				} catch (Exception e) {
 					log.error("EasyCache config keySerializer Illegal", e);
 				}
@@ -171,8 +170,7 @@ public class EasyCacheNamespaceHandler extends NamespaceHandlerSupport {
 			if (!Strings.isNullOrEmpty(valueSerializerElements.get(0).getAttribute("class"))) {
 				try {
 					Class cls = Class.forName(valueSerializerElements.get(0).getAttribute("class"));
-					Serializer serializer = (Serializer) cls.newInstance();
-					factory.addPropertyValue("valueSerializer", serializer);
+					factory.addPropertyValue("valueSerializer", cls);
 				} catch (Exception e) {
 					log.error("EasyCache config keySerializer Illegal", e);
 				}

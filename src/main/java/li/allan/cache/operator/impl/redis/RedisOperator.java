@@ -18,21 +18,20 @@ package li.allan.cache.operator.impl.redis;
 
 import li.allan.cache.operator.BaseOperator;
 import li.allan.config.base.CacheConfig;
-import li.allan.config.base.ConfigBase;
 import li.allan.config.base.RedisConfig;
 import li.allan.exception.CacheOperationException;
 import li.allan.monitor.RedisInfo;
 import li.allan.observer.EasyCacheObserver;
 import li.allan.observer.ObserverContainer;
 import li.allan.observer.event.RedisInfoEvent;
+import li.allan.serializer.Serializer;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.util.SafeEncoder;
 
 /**
  * @author LiALuN
  */
-public class RedisOperator implements BaseOperator, EasyCacheObserver<RedisInfoEvent> {
+public class RedisOperator extends BaseOperator implements EasyCacheObserver<RedisInfoEvent> {
 	RedisPoolContainer redisPoolContainer = new RedisPoolContainer();
 
 	public RedisOperator() {
@@ -40,56 +39,53 @@ public class RedisOperator implements BaseOperator, EasyCacheObserver<RedisInfoE
 	}
 
 	@Override
-	public void set(final String key, final Object value) throws CacheOperationException {
+	public void set(final String key, final Object value, final Serializer keySerializer, final Serializer valueSerializer) throws CacheOperationException {
 		new RedisOperatorTemplate<Void>(key) {
 			@Override
 			Void readFromRedis() {
-				jedis.set(ConfigBase.getConfigProperties().getKeySerializer().serialize(key),
-						ConfigBase.getConfigProperties().getValueSerializer().serialize(value));
+				jedis.set(keySerializer.serialize(key), keySerializer.serialize(value));
 				return null;
 			}
 		}.getResult();
 	}
 
 	@Override
-	public void setWithExpire(final String key, final Object value, final int expire) throws CacheOperationException {
+	public void setWithExpire(final String key, final Object value, final int expire, final Serializer keySerializer, final Serializer valueSerializer) throws CacheOperationException {
 		new RedisOperatorTemplate<Void>(key) {
 			@Override
 			Void readFromRedis() {
-				byte[] k = ConfigBase.getConfigProperties().getKeySerializer().serialize(key);
-				byte[] v = ConfigBase.getConfigProperties().getValueSerializer().serialize(value);
-				jedis.setex(k, expire, v);
+				jedis.setex(keySerializer.serialize(key), expire, valueSerializer.serialize(value));
 				return null;
 			}
 		}.getResult();
 	}
 
 	@Override
-	public <T> Object getByKey(final String key, final Class<T> type) throws CacheOperationException {
+	public <T> Object getByKey(final String key, final Class<T> type, final Serializer keySerializer, final Serializer valueSerializer) throws CacheOperationException {
 		return new RedisOperatorTemplate<Object>(key) {
 			@Override
 			Object readFromRedis() {
-				return ConfigBase.getConfigProperties().getValueSerializer().deserialize(jedis.get(SafeEncoder.encode(key)), type);
+				return valueSerializer.deserialize(jedis.get(keySerializer.serialize(key)), type);
 			}
 		}.getResult();
 	}
 
 	@Override
-	public void removeByKey(final String key) throws CacheOperationException {
+	public void removeByKey(final String key, final Serializer keySerializer) throws CacheOperationException {
 		new RedisOperatorTemplate<Void>(key) {
 			@Override
 			Void readFromRedis() {
-				jedis.del(key);
+				jedis.del(keySerializer.serialize(key));
 				return null;
 			}
 		}.getResult();
 	}
 
-	public long TTL(final String key) throws CacheOperationException {
+	public long TTL(final String key, final Serializer keySerializer) throws CacheOperationException {
 		return new RedisOperatorTemplate<Long>(key) {
 			@Override
 			Long readFromRedis() {
-				return jedis.ttl(key);
+				return jedis.ttl(keySerializer.serialize(key));
 			}
 		}.getResult();
 	}
@@ -102,6 +98,11 @@ public class RedisOperator implements BaseOperator, EasyCacheObserver<RedisInfoE
 	@Override
 	public void eventUpdate(RedisInfoEvent event) {
 		redisPoolContainer.onRedisStatusUpdate((RedisInfo) event.getSource());
+	}
+
+	@Override
+	public void onConfigUpdate(CacheConfig cacheConfig) {
+		redisPoolContainer.onConfigUpdate((RedisConfig) cacheConfig);
 	}
 
 	/**
@@ -131,10 +132,5 @@ public class RedisOperator implements BaseOperator, EasyCacheObserver<RedisInfoE
 				}
 			}
 		}
-	}
-
-	@Override
-	public void onConfigUpdate(CacheConfig cacheConfig) {
-		redisPoolContainer.onConfigUpdate((RedisConfig) cacheConfig);
 	}
 }

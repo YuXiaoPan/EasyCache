@@ -29,11 +29,12 @@ import li.allan.exception.NoAvailableCacheException;
 import li.allan.observer.EasyCacheObserver;
 import li.allan.observer.ObserverContainer;
 import li.allan.observer.event.ConfigUpdateEvent;
+import li.allan.serializer.Serializer;
 
 /**
  * @author LiALuN
  */
-public class CacheOperator implements EasyCacheObserver<ConfigUpdateEvent>, CacheInterface {
+public class CacheOperator implements CacheInterface, EasyCacheObserver<ConfigUpdateEvent> {
 	private static CacheOperator single = new CacheOperator();
 
 	public static CacheOperator getInstance() {
@@ -48,23 +49,23 @@ public class CacheOperator implements EasyCacheObserver<ConfigUpdateEvent>, Cach
 	}
 
 	@Override
-	public void set(String key, Object value) throws CacheOperationException {
-		getOperator().set(key, value);
+	public void set(String key, Object value, Serializer keySerializer, Serializer valueSerializer) throws CacheOperationException {
+		getOperator().set(key, value, keySerializer, valueSerializer);
 	}
 
 	@Override
-	public void setWithExpire(String key, Object value, int expire) throws CacheOperationException {
-		getOperator().setWithExpire(key, value, expire);
+	public void setWithExpire(String key, Object value, int expire, Serializer keySerializer, Serializer valueSerializer) throws CacheOperationException {
+		getOperator().setWithExpire(key, value, expire, keySerializer, valueSerializer);
 	}
 
 	@Override
-	public <T> Object getByKey(String key, Class<T> type) throws CacheOperationException {
-		return getOperator().getByKey(key, type);
+	public <T> Object getByKey(String key, Class<T> type, Serializer keySerializer, Serializer valueSerializer) throws CacheOperationException {
+		return getOperator().getByKey(key, type, keySerializer, valueSerializer);
 	}
 
 	@Override
-	public void removeByKey(String key) throws CacheOperationException {
-		getOperator().removeByKey(key);
+	public void removeByKey(String key, Serializer keySerializer) throws CacheOperationException {
+		getOperator().removeByKey(key, keySerializer);
 	}
 
 	private BaseOperator getOperator() {

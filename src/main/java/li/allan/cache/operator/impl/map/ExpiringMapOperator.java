@@ -19,24 +19,25 @@ package li.allan.cache.operator.impl.map;
 import li.allan.cache.operator.BaseOperator;
 import li.allan.config.base.CacheConfig;
 import li.allan.exception.CacheOperationException;
+import li.allan.serializer.Serializer;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author LiALuN
  */
-public class ExpiringMapOperator implements BaseOperator {
+public class ExpiringMapOperator extends BaseOperator {
 	ExpiringMapContainer expiringMapContainer = new ExpiringMapContainer();
 
 	@Override
-	public void set(String key, Object value) throws CacheOperationException {
+	public void set(String key, Object value, Serializer keySerializer, Serializer valueSerializer) throws CacheOperationException {
 		expiringMapContainer.getMap().put(key, value, Integer.MAX_VALUE, TimeUnit.SECONDS);
 	}
 
 	@Override
-	public void setWithExpire(String key, Object value, int expire) throws CacheOperationException {
+	public void setWithExpire(String key, Object value, int expire, Serializer keySerializer, Serializer valueSerializer) throws CacheOperationException {
 		if (expire < 0) {
-			set(key, value);
+			set(key, value, keySerializer, valueSerializer);
 		}
 		if (expire == 0) {
 			return;
@@ -45,12 +46,12 @@ public class ExpiringMapOperator implements BaseOperator {
 	}
 
 	@Override
-	public <T> Object getByKey(String key, Class<T> type) throws CacheOperationException {
+	public <T> Object getByKey(String key, Class<T> type, Serializer keySerializer, Serializer valueSerializer) throws CacheOperationException {
 		return expiringMapContainer.getMap().get(key);
 	}
 
 	@Override
-	public void removeByKey(String key) throws CacheOperationException {
+	public void removeByKey(String key, Serializer keySerializer) throws CacheOperationException {
 		expiringMapContainer.getMap().remove(key);
 	}
 

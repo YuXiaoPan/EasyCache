@@ -24,7 +24,7 @@ import org.springframework.core.serializer.support.SerializingConverter;
 import static li.allan.utils.Constants.EMPTY_ARRAY;
 import static li.allan.utils.Constants.NO_DATA;
 
-public class JdkSerializer implements Serializer {
+public class JdkSerializer extends Serializer {
 
 	private Converter<Object, byte[]> serializer = new SerializingConverter();
 	private Converter<byte[], Object> deserializer = new DeserializingConverter();

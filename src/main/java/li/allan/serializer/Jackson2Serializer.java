@@ -28,11 +28,11 @@ import org.springframework.util.Assert;
 import static li.allan.utils.Constants.EMPTY_ARRAY;
 import static li.allan.utils.Constants.NO_DATA;
 
-public class Jackson2Serializer implements Serializer {
+public class Jackson2Serializer extends Serializer {
 
 	private final ObjectMapper mapper;
 
-	public Jackson2Serializer() {
+	Jackson2Serializer() {
 		mapper = new ObjectMapper();
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 

@@ -16,6 +16,8 @@
 
 package li.allan.annotation;
 
+import li.allan.serializer.Serializer;
+
 import java.lang.annotation.*;
 
 /**
@@ -43,4 +45,6 @@ public @interface EasyCache {
 	 * 通过#result获取返回值。具体参考SpEL表达式。
 	 */
 	String unless() default "";
+
+	Class<? extends Serializer> serializer() default Serializer.class;
 }

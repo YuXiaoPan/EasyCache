@@ -17,16 +17,17 @@
 package li.allan.cache.operator;
 
 import li.allan.exception.CacheOperationException;
+import li.allan.serializer.Serializer;
 
 /**
  * @author LiALuN
  */
 public interface CacheInterface {
-	void set(String key, Object value) throws CacheOperationException;
+	void set(final String key, final Object value, final Serializer keySerializer, final Serializer valueSerializer) throws CacheOperationException;
 
-	void setWithExpire(String key, Object value, int expire) throws CacheOperationException;
+	void setWithExpire(final String key, final Object value, final int expire, final Serializer keySerializer, final Serializer valueSerializer) throws CacheOperationException;
 
-	<T> Object getByKey(String key, Class<T> type) throws CacheOperationException;
+	<T> Object getByKey(final String key, Class<T> type, final Serializer keySerializer, final Serializer valueSerializer) throws CacheOperationException;
 
-	void removeByKey(String key) throws CacheOperationException;
+	void removeByKey(final String key, final Serializer keySerializer) throws CacheOperationException;
 }

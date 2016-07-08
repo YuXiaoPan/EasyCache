@@ -21,9 +21,12 @@ import li.allan.annotation.CachePut;
 import li.allan.annotation.EasyCache;
 import li.allan.annotation.KeyParam;
 import li.allan.cache.impl.MethodCache;
+import li.allan.config.base.ConfigBase;
 import li.allan.exception.SerializationException;
 import li.allan.logging.Log;
 import li.allan.logging.LogFactory;
+import li.allan.serializer.Serializer;
+import li.allan.serializer.SerializerContainer;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -66,19 +69,24 @@ public class EasyCacheAspect extends MethodCache {
 			return point.proceed();
 		}
 		List<MethodParam> methodParams = getParamsFromMethod(method, point.getArgs());
-		EasyCache cache = getMethodFromProceedingJoinPoint(point).getAnnotation(EasyCache.class);
+		EasyCache cacheAnnotation = getMethodFromProceedingJoinPoint(point).getAnnotation(EasyCache.class);
 		log.debug("Annotation cache method start, proceeding join point at " + className + "." + method.getName());
 		/**
 		 * generate cache key
 		 */
-		String cacheKeyName = getCacheKeyName(cache.value(), className, method.getName(), methodParams);
+		String cacheKeyName = getCacheKeyName(cacheAnnotation.value(), className, method.getName(), methodParams);
 		log.debug("Generate cache key = " + cacheKeyName);
+		/**
+		 * serializer
+		 */
+		Serializer keySerializer = SerializerContainer.getSerializer(ConfigBase.getConfigProperties().getKeySerializer());
+		Serializer valueSerializer = SerializerContainer.getSerializer(cacheAnnotation.serializer());
 		/**
 		 * try to get cache
 		 */
 		try {
 			log.debug("Try to get cache");
-			Object resp = getCacheOperator().getByKey(cacheKeyName, returnType);
+			Object resp = getCacheOperator().getByKey(cacheKeyName, returnType, keySerializer, valueSerializer);
 			if (!(resp instanceof NoData)) {
 				return resp;
 			}
@@ -96,13 +104,13 @@ public class EasyCacheAspect extends MethodCache {
 		 * save cache data
 		 */
 		try {
-			if (!onCondition(cache.unless(), resp, methodParams)) {
+			if (!onCondition(cacheAnnotation.unless(), resp, methodParams)) {
 				log.debug("Try to set cache");
-				int expireTime = expireTime(cache.expired());
+				int expireTime = expireTime(cacheAnnotation.expired());
 				if (expireTime < 0) {
-					getCacheOperator().set(cacheKeyName, resp);
+					getCacheOperator().set(cacheKeyName, resp, keySerializer, valueSerializer);
 				} else {
-					getCacheOperator().setWithExpire(cacheKeyName, resp, expireTime);
+					getCacheOperator().setWithExpire(cacheKeyName, resp, expireTime, keySerializer, valueSerializer);
 				}
 			}
 		} catch (Exception e) {
@@ -132,6 +140,10 @@ public class EasyCacheAspect extends MethodCache {
 		String cacheKeyName = getCacheKeyName(cacheDel.value(), className, method.getName(), methodParams);
 		log.debug("Generate cache key = " + cacheKeyName);
 		/**
+		 * serializer
+		 */
+		Serializer keySerializer = SerializerContainer.getSerializer(ConfigBase.getConfigProperties().getKeySerializer());
+		/**
 		 * proceed method
 		 */
 		Object resp = point.proceed();
@@ -141,7 +153,7 @@ public class EasyCacheAspect extends MethodCache {
 		try {
 			if (!onCondition(cacheDel.unless(), resp, methodParams)) {
 				log.debug("Try to delete cache");
-				getCacheOperator().removeByKey(cacheKeyName);
+				getCacheOperator().removeByKey(cacheKeyName, keySerializer);
 			}
 		} catch (Exception e) {
 			log.error("EasyCache delete cache ERROR", e);
@@ -162,13 +174,19 @@ public class EasyCacheAspect extends MethodCache {
 		String className = point.getTarget().getClass().getSimpleName();
 		Method method = getMethodFromProceedingJoinPoint(point);
 		List<MethodParam> methodParams = getParamsFromMethod(method, point.getArgs());
-		CachePut cachePut = getMethodFromProceedingJoinPoint(point).getAnnotation(CachePut.class);
+		CachePut cacheAnnotation = getMethodFromProceedingJoinPoint(point).getAnnotation(CachePut.class);
 		log.debug("Annotation cachePut method start, proceeding join point at " + className + "." + method.getName());
 		/**
 		 * generate cache key
 		 */
-		String cacheKeyName = getCacheKeyName(cachePut.value(), className, method.getName(), methodParams);
+		String cacheKeyName = getCacheKeyName(cacheAnnotation.value(), className, method.getName(), methodParams);
 		log.debug("Generate cache key = " + cacheKeyName);
+		/**
+		 * serializer
+		 */
+		Serializer keySerializer = SerializerContainer.getSerializer(ConfigBase.getConfigProperties().getKeySerializer());
+		Serializer valueSerializer = SerializerContainer.getSerializer(cacheAnnotation.serializer());
+
 		/**
 		 * proceed method
 		 */
@@ -177,14 +195,14 @@ public class EasyCacheAspect extends MethodCache {
 		 * try to update cache data
 		 */
 		try {
-			if (!onCondition(cachePut.unless(), resp, methodParams)) {
+			if (!onCondition(cacheAnnotation.unless(), resp, methodParams)) {
 				log.debug("Try to update cache data");
-				Object cacheObject = getValueFromInvoke(cachePut.cache(), resp, methodParams);
-				int expireTime = expireTime(cachePut.expired());
+				Object cacheObject = getValueFromInvoke(cacheAnnotation.cache(), resp, methodParams);
+				int expireTime = expireTime(cacheAnnotation.expired());
 				if (expireTime < 0) {
-					getCacheOperator().set(cacheKeyName, cacheObject);
+					getCacheOperator().set(cacheKeyName, cacheObject, keySerializer, valueSerializer);
 				} else {
-					getCacheOperator().setWithExpire(cacheKeyName, cacheObject, expireTime);
+					getCacheOperator().setWithExpire(cacheKeyName, cacheObject, expireTime, keySerializer, valueSerializer);
 				}
 			}
 		} catch (Exception e) {

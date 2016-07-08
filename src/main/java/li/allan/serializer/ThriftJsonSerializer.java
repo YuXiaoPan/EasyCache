@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static li.allan.utils.Constants.EMPTY_ARRAY;
 import static li.allan.utils.Constants.NO_DATA;
 
-public class ThriftJsonSerializer implements Serializer {
+public class ThriftJsonSerializer extends Serializer {
 
 	private final StringSerializer stringSerializer;
 

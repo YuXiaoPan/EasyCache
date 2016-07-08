@@ -36,13 +36,12 @@ public class CacheDelAnnotationTest extends TestBase {
 	private CacheDelAnnotationTest cacheDelAnnotationTest;
 
 
-
 	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 1000)
 	public void baseMethodTest() throws InterruptedException {
 		String cacheKey = generateCacheKey();
 		//insert test data
-		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND);
-		assertNotNull(getCacheOperator().getByKey(generateCacheKey(), String.class));
+		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND, getKeySerializer(), getValueSerializer());
+		assertNotNull(getCacheOperator().getByKey(generateCacheKey(), String.class, getKeySerializer(), getValueSerializer()));
 		//delete data
 		cacheDelAnnotationTest.baseMethod();
 		assertFalse(isHaveRecord(generateCacheKey()));
@@ -57,8 +56,8 @@ public class CacheDelAnnotationTest extends TestBase {
 	public void withParamTest() {
 		String cacheKey = generateCacheKey("str", TEST_STRING);
 		//insert test data
-		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND);
-		assertNotNull(getCacheOperator().getByKey(cacheKey, String.class));
+		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND, getKeySerializer(), getValueSerializer());
+		assertNotNull(getCacheOperator().getByKey(cacheKey, String.class, getKeySerializer(), getValueSerializer()));
 		//delete data
 		cacheDelAnnotationTest.withParam(TEST_STRING);
 		assertFalse(isHaveRecord(cacheKey));
@@ -73,8 +72,8 @@ public class CacheDelAnnotationTest extends TestBase {
 	public void withParamAnnotationTest() {
 		String cacheKey = generateCacheKey("s", TEST_STRING, "user", getUser().getName());
 		//insert test data
-		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND);
-		assertNotNull(getCacheOperator().getByKey(cacheKey, String.class));
+		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND, getKeySerializer(), getValueSerializer());
+		assertNotNull(getCacheOperator().getByKey(cacheKey, String.class, getKeySerializer(), getValueSerializer()));
 		//delete data
 		cacheDelAnnotationTest.withParamAnnotation(TEST_STRING, getUser());
 		assertFalse(isHaveRecord(cacheKey));
@@ -89,8 +88,8 @@ public class CacheDelAnnotationTest extends TestBase {
 	public void withUnlessTest() {
 		String cacheKey = generateCacheKey();
 		//insert test data
-		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND);
-		assertNotNull(getCacheOperator().getByKey(cacheKey, String.class));
+		getCacheOperator().setWithExpire(cacheKey, TEST_STRING, DEFAULT_TEST_EXPIRE_IN_SECOND, getKeySerializer(), getValueSerializer());
+		assertNotNull(getCacheOperator().getByKey(cacheKey, String.class, getKeySerializer(), getValueSerializer()));
 		//delete data
 		cacheDelAnnotationTest.withUnlessIsTrue();
 		assertTrue(isHaveRecord(cacheKey));

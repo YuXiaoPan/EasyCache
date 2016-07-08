@@ -39,13 +39,13 @@ public class CachePutAnnotationTest extends TestBase {
 	public void cacheResultTest() {
 		String cacheKey = generateCacheKey();
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache put
 		cachePutAnnotationTest.cacheResult();
-		assertEquals(getCacheOperator().getByKey(cacheKey, User.class), getUser());
+		assertEquals(getCacheOperator().getByKey(cacheKey, User.class, getKeySerializer(), getValueSerializer()), getUser());
 		//delete data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 	}
 
 	@CachePut(value = "CachePutAnnotationTest_cacheResult", cache = "#result")
@@ -55,15 +55,15 @@ public class CachePutAnnotationTest extends TestBase {
 
 	@Test(timeOut = DEFAULT_TEST_EXPIRE_IN_SECOND * 100000)
 	public void cacheParamTest() {
-		String cacheKey = generateCacheKey("user",getUser().getName());
+		String cacheKey = generateCacheKey("user", getUser().getName());
 		//clean dirty data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 		Assert.assertTrue(!isHaveRecord(cacheKey));
 		//test cache put
 		cachePutAnnotationTest.cacheParam(getUser());
-		assertEquals(getCacheOperator().getByKey(cacheKey, User.class), getUser());
+		assertEquals(getCacheOperator().getByKey(cacheKey, User.class, getKeySerializer(), getValueSerializer()), getUser());
 		//delete data
-		getCacheOperator().removeByKey(cacheKey);
+		getCacheOperator().removeByKey(cacheKey, getKeySerializer());
 	}
 
 	@CachePut(value = "CachePutAnnotationTest_cacheParam", cache = "#user")

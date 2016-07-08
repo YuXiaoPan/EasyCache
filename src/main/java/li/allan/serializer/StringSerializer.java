@@ -19,11 +19,11 @@ import li.allan.exception.SerializationException;
 
 import java.nio.charset.Charset;
 
-public class StringSerializer implements Serializer {
+public class StringSerializer extends Serializer {
 
 	private final Charset charset;
 
-	public StringSerializer() {
+	StringSerializer() {
 		this.charset = Charset.forName("UTF8");
 	}
 

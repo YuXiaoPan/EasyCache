@@ -24,6 +24,6 @@ import li.allan.config.base.CacheConfig;
  *
  * @author LiALuN
  */
-public interface BaseOperator extends CacheInterface, ConfigUpdateEventListener<CacheConfig> {
-	boolean isAvailable();
+public abstract class BaseOperator implements CacheInterface, ConfigUpdateEventListener<CacheConfig> {
+	abstract public boolean isAvailable();
 }

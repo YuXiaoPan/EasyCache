@@ -27,8 +27,8 @@ import li.allan.serializer.StringSerializer;
 public class ConfigProperties {
 	private CacheConfig mainCacheConfig;
 	private CacheConfig backupCacheConfig;
-	private Serializer keySerializer = new StringSerializer();
-	private Serializer valueSerializer = new Jackson2Serializer();
+	private Class<? extends Serializer> keySerializer = StringSerializer.class;
+	private Class<? extends Serializer> valueSerializer = Jackson2Serializer.class;
 	private int defaultCacheExpire = -1;
 
 	public CacheConfig getMainCacheConfig() {
@@ -47,19 +47,19 @@ public class ConfigProperties {
 		this.backupCacheConfig = backupCacheConfig;
 	}
 
-	public Serializer getKeySerializer() {
+	public Class<? extends Serializer> getKeySerializer() {
 		return keySerializer;
 	}
 
-	public void setKeySerializer(Serializer keySerializer) {
+	public void setKeySerializer(Class<? extends Serializer> keySerializer) {
 		this.keySerializer = keySerializer;
 	}
 
-	public Serializer getValueSerializer() {
+	public Class<? extends Serializer> getValueSerializer() {
 		return valueSerializer;
 	}
 
-	public void setValueSerializer(Serializer valueSerializer) {
+	public void setValueSerializer(Class<? extends Serializer> valueSerializer) {
 		this.valueSerializer = valueSerializer;
 	}
 
