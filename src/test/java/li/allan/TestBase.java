@@ -61,8 +61,7 @@ public class TestBase extends AbstractTestNGSpringContextTests {
 
 	@BeforeSuite
 	public void startRedis() throws IOException {
-		RedisExecProvider customProvider = RedisExecProvider.defaultProvider()
-				.override(OS.WINDOWS, Architecture.x86_64, "D:\\Java\\Redis\\redis-server.exe");
+		RedisExecProvider customProvider = RedisExecProvider.defaultProvider();
 		redisServer = new RedisServer(customProvider, TEST_REDIS_PORT);
 		redisServer.start();
 	}
