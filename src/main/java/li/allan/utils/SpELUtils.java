@@ -38,9 +38,6 @@ public class SpELUtils {
 		return parser.parseExpression(spEL).getValue(context, Object.class);
 	}
 
-	public static boolean condition(Object object, String SpEL) {
-		return (Boolean) getValue(object, SpEL);
-	}
 
 	public static boolean condition(StandardEvaluationContext context, String SpEL) {
 		return (Boolean) getValue(context, SpEL);
@@ -48,12 +45,14 @@ public class SpELUtils {
 
 	private static final StandardEvaluationContext timeContext = new StandardEvaluationContext();
 
+
+
 	static {
 		try {
-			timeContext.registerFunction("now", TimeUtil.class.getDeclaredMethod("now"));
-			timeContext.registerFunction("today", TimeUtil.class.getDeclaredMethod("today"));
-			timeContext.registerFunction("tomorrow", TimeUtil.class.getDeclaredMethod("tomorrow"));
-			timeContext.registerFunction("diffTime", TimeUtil.class.getDeclaredMethod("diffTime", TimeUtil.CalendarWrapper.class, TimeUtil.CalendarWrapper.class));
+			timeContext.registerFunction("now", TimeUtils.class.getDeclaredMethod("now"));
+			timeContext.registerFunction("today", TimeUtils.class.getDeclaredMethod("today"));
+			timeContext.registerFunction("tomorrow", TimeUtils.class.getDeclaredMethod("tomorrow"));
+			timeContext.registerFunction("diffTime", TimeUtils.class.getDeclaredMethod("diffTime", TimeUtils.CalendarWrapper.class, TimeUtils.CalendarWrapper.class));
 		} catch (NoSuchMethodException e) {
 			log.error("expire time SpEL Method INIT ERROR", e);
 		}
@@ -61,11 +60,5 @@ public class SpELUtils {
 
 	public static int getTime(String SpEL) {
 		return (Integer) getValue(timeContext, SpEL);
-	}
-
-	public static void main(String[] args) {
-		String spEL = "#asdf";
-		Object resp = getValue(new Object(),spEL);
-		System.out.println(resp);
 	}
 }

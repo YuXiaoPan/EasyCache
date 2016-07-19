@@ -2,7 +2,7 @@ package li.allan.utils;
 
 import java.util.Calendar;
 
-public class TimeUtil {
+public class TimeUtils {
 	static class CalendarWrapper {
 		Calendar cal;
 
@@ -40,7 +40,7 @@ public class TimeUtil {
 		}
 
 		public int diffTime(final CalendarWrapper calendarWrapper) {
-			return TimeUtil.diffTime(this, calendarWrapper);
+			return TimeUtils.diffTime(this, calendarWrapper);
 		}
 
 		private Calendar getCal() {
